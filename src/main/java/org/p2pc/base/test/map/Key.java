@@ -8,6 +8,8 @@ package org.p2pc.base.test.map;
  */
 public class Key {
 	
+	public static final int size = 256;
+	
 	/**
 	 * byte value
 	 */
@@ -27,6 +29,10 @@ public class Key {
 	public Key(byte[] hash,String name) {
 		this.hash = hash;
 		this.name = name;
+	}
+
+	public boolean inside(Key key, Key key2) {
+		return false;
 	}
 	
 }

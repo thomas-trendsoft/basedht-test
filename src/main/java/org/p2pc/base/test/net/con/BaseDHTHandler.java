@@ -1,4 +1,4 @@
-package org.p2pc.base.test.net;
+package org.p2pc.base.test.net.con;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;

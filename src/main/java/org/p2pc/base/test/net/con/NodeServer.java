@@ -1,8 +1,10 @@
-package org.p2pc.base.test.net;
+package org.p2pc.base.test.net.con;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+
+import org.p2pc.base.test.net.ServerException;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
