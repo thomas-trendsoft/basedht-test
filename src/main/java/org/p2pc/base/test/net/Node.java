@@ -1,65 +1,26 @@
 package org.p2pc.base.test.net;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.p2pc.base.test.CryptoUtil;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.Host;
 
 /**
- * base peer network node
+ * base node interface 
  * 
  * @author tkrieger
  *
  */
-public class Node {
-
-	/**
-	 * local memory map
-	 */
-	private ConcurrentHashMap<Key, Value> localMap;
+public abstract class Node {
 	
 	/**
-	 * DHT Node Key
+	 * host information
 	 */
-	private Key nodeKey;
+	protected Host host;
 	
 	/**
-	 * default constructor 
+	 * key for map position
 	 */
-	public Node() {
-		localMap = new ConcurrentHashMap<>();
-	}
-	
-	/**
-	 * bootstrap a new network
-	 * 
-	 * @throws NoSuchAlgorithmException 
-	 */
-	public void bootstrap(String name) throws NoSuchAlgorithmException {
-		nodeKey = CryptoUtil.createRandomKey(name);
-	}
-	
-	/**
-	 * join a p2p network
-	 * 
-	 * @throws NoSuchAlgorithmException 
-	 */
-	public void join(String name,List<Host> candidates) throws NoSuchAlgorithmException {
-		// TODO check connection state
-		
-		nodeKey = CryptoUtil.createRandomKey(name); 
-	}
-	
-	/**
-	 * leave the active p2p network
-	 */
-	public void leave() {
-		
-	}
+	protected Key key;
 	
 	/**
 	 * lookup a map key
@@ -67,9 +28,7 @@ public class Node {
 	 * @param key
 	 * @return
 	 */
-	public Value get(byte[] key) {
-		return null;
-	}
+	public abstract Value get(Key key);
 	
 	/**
 	 * set a map value
@@ -77,8 +36,14 @@ public class Node {
 	 * @param key
 	 * @param data
 	 */
-	public void set(byte[] key,Value data) {
-		
-	}
+	public abstract void set(Key key,Value data);
 	
+	/**
+	 * find a success for the given node
+	 * 
+	 * @param n
+	 * @return
+	 */
+	public abstract Node findSuccessor(Key key);
+
 }
