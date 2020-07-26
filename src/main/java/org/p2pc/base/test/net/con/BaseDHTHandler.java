@@ -1,5 +1,8 @@
 package org.p2pc.base.test.net.con;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
@@ -21,12 +24,18 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 	private boolean debug;
 	
 	/**
+	 * logging interface
+	 */
+	private Logger log;
+	
+	/**
 	 * default constructor 
 	 * 
 	 * @param debug
 	 */
 	public BaseDHTHandler(boolean debug) {
 		this.debug = debug;
+		this.log   = LoggerFactory.getLogger("DHTProtocol");
 	}
 	
 	@Override
@@ -36,7 +45,7 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
         String received = inBuffer.toString(CharsetUtil.UTF_8);
         System.out.println("Server received: " + received);
 
-        ctx.write(Unpooled.copiedBuffer("Hello " + received, CharsetUtil.UTF_8));
+        ctx.write(Unpooled.copiedBuffer(received, CharsetUtil.UTF_8));
     }
 
     @Override

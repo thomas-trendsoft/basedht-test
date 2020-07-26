@@ -23,10 +23,27 @@ public class ConnectionPool {
 	private ConcurrentHashMap<Key, Connection> active;
 	
 	/**
+	 * Request ID generator
+	 */
+	private static int reqid;
+	
+	/**
 	 * default constructor 
 	 */
 	private ConnectionPool() {
+		reqid  = (int) (Math.random() * Integer.MAX_VALUE);
 		active = new ConcurrentHashMap<>();
+	}
+	
+	/**
+	 * local node request id sequence
+	 * 
+	 * @return
+	 */
+	public synchronized static int getRequestId() {
+		int id = reqid++;
+		if (reqid == Integer.MAX_VALUE) reqid = 0;
+		return id;
 	}
 	
 	/**
@@ -44,8 +61,13 @@ public class ConnectionPool {
 	 * 
 	 * @param host
 	 */
-	public void getConnection(Host host) {
+	public Connection getConnection(Host host) {
+		if (active.contains(host.getKey())) {
+			return active.get(host.getKey());
+		}
 		
+		// try to create a new connection
+		return null;
 	}
 	
 }

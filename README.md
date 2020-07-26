@@ -20,20 +20,26 @@ KEY = 256 BIT =
 
 ## Ping 
 
-- Request: REQID + "PI" + 0x00
-
+- Request:  REQID + "PI" + 0x00
 - Response: REQID + "PO" + 0x00
+
+## Lookup Key
+
+- Request:  REQID + "GET" + 0x00 + KEY + 0x00
+- Response: REQID + "VAL" + 0x00 + LEN (INTEGER) + BYTES + 0x00
+
+## Set Value 
+
+- Request:  REQID + "SET" + 0x00 + KEY + LEN (INTEGER) + BYTES + 0x00
+- Response: REQID + "DONE" + 0x00
 
 ## Find Successor
 
-- Request: REQID + "FINDSUCC" + KEY + 0x00
-- Response REQID + "FINDSUCC" + NODE + 0x00 / OR instead NODE 0x00 directly if nothing found
+- Request: REQID + "FINDSUCC" + 0x00 + KEY + 0x00
+- Response REQID + "FINDSUCC" + 0x00 + NODE + 0x00 / OR instead NODE 0x00 directly if nothing found
 
 ## Notify
 
-- Request: REQID + "NOTIFY" + NODE + 0x00
-- Response: REQID + "X" + 0x00
+- Request:  REQID + "NOTIFY" + 0x00 + NODE + 0x00
+- Response: REQID + "DONE" + 0x00
 
-## lookup 
-
-- Request: REQID + "GET" + KEY + 0x00

@@ -127,5 +127,11 @@ public class LocalNode extends Node {
 		}
 		return this;
 	}
+
+	@Override
+	public void notify(Node n) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

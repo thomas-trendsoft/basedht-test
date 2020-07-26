@@ -45,5 +45,11 @@ public abstract class Node {
 	 * @return
 	 */
 	public abstract Node findSuccessor(Key key);
+	
+	/**
+	 * notify node
+	 * @param n
+	 */
+	public abstract void notify(Node n);
 
 }
