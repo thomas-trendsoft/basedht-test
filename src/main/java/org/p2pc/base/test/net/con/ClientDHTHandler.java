@@ -1,5 +1,7 @@
 package org.p2pc.base.test.net.con;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,13 +13,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.CharsetUtil;
 
 /**
- * server base dht protocol handler
+ * client protocol handler
  * 
  * @author tkrieger
  *
  */
-public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
-    
+public class ClientDHTHandler extends ChannelInboundHandlerAdapter {
+
 	/**
 	 * debuging protocol available
 	 */
@@ -29,21 +31,37 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 	private Logger log;
 	
 	/**
+	 * open requests
+	 */
+	private ConcurrentHashMap<Integer, ClientConnection> open;
+		
+	/**
 	 * default constructor 
 	 * 
 	 * @param debug
 	 */
-	public BaseDHTHandler(boolean debug) {
+	public ClientDHTHandler(boolean debug) {
 		this.debug = debug;
-		this.log   = LoggerFactory.getLogger("DHTServer");
+		this.log   = LoggerFactory.getLogger("DHTClient");
 	}
+	
+	/**
+	 * register request
+	 * 
+	 * @param rid
+	 * @param con
+	 */
+	public void register(Integer rid, ClientConnection con) {
+		open.put(rid, con);
+	}
+	
 	
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf inBuffer = (ByteBuf) msg;
 
         String received = inBuffer.toString(CharsetUtil.UTF_8);
-        System.out.println("Server received: " + received);
+        System.out.println("Client received: " + received);
 
         ctx.write(Unpooled.copiedBuffer(received, CharsetUtil.UTF_8));
     }
@@ -59,5 +77,5 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
         cause.printStackTrace();
         ctx.close();
     }
-    
+
 }

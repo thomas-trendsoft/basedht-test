@@ -18,6 +18,10 @@ public class Host {
 	public Key getKey() {
 		return key;
 	}
+	
+	public void setKey(Key k) {
+		this.key = k;
+	}
 
 	public String getHostname() {
 		return hostname;

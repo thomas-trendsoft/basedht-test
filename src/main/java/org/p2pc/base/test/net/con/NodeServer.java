@@ -95,6 +95,7 @@ public class NodeServer {
 		            socketChannel.pipeline().addLast(new BaseDHTHandler(true));
 		        }
 		    });
+		    
 		    future = server.bind().sync();
 		    future.channel().closeFuture().sync();
 		} catch(Exception e){

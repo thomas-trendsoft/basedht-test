@@ -8,6 +8,10 @@ Basic documentation of implementation
 
 https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf
 
+## Status
+
+Not compiled no so ... we will have to see.
+
 # Basic Protocol Definition
 
 Try to use bidirectonal tcp streams in a connection pool with a req id to handle command -> repsonse 
@@ -16,7 +20,12 @@ A request id is a 32 bit integer
 
 All text commands byte encoded in UTF-8
 
-KEY = 256 BIT = 
+KEY = 256 BIT 
+
+## Hello Handshake
+
+- Request:  REQID + "HELLO" + "P2PC" + VER (3 BYTES) + KEY + 0x00
+- Response: REQID + "CP2P" + VER (3 BYTES) + KEY + 0x00
 
 ## Ping 
 
@@ -36,7 +45,7 @@ KEY = 256 BIT =
 ## Find Successor
 
 - Request: REQID + "FINDSUCC" + 0x00 + KEY + 0x00
-- Response REQID + "FINDSUCC" + 0x00 + NODE + 0x00 / OR instead NODE 0x00 directly if nothing found
+- Response REQID + "SUCCESSF" + 0x00 + NODE + 0x00 / OR instead NODE 0x00 directly if nothing found
 
 ## Notify
 

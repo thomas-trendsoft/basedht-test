@@ -76,7 +76,8 @@ public class Message {
 	/**
 	 * create byte stream from msg
 	 * 
-	 * @return
+	 * @return byte array representing the message 
+	 * 
 	 * @throws IOException 
 	 */
 	public byte[] serializeMsg() throws IOException {
@@ -93,6 +94,15 @@ public class Message {
 		puf.close();
 		
 		return data;
+	}
+
+	/**
+	 * get request id
+	 * 
+	 * @return
+	 */
+	public Integer getRequestId() {
+		return this.reqid;
 	}
 
 }

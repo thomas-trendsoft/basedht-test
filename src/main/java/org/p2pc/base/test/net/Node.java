@@ -28,7 +28,7 @@ public abstract class Node {
 	 * @param key
 	 * @return
 	 */
-	public abstract Value get(Key key);
+	public abstract Value get(Key key) throws ClientException;
 	
 	/**
 	 * set a map value
@@ -36,7 +36,7 @@ public abstract class Node {
 	 * @param key
 	 * @param data
 	 */
-	public abstract void set(Key key,Value data);
+	public abstract void set(Key key,Value data) throws ClientException;
 	
 	/**
 	 * find a success for the given node
@@ -48,6 +48,7 @@ public abstract class Node {
 	
 	/**
 	 * notify node
+	 * 
 	 * @param n
 	 */
 	public abstract void notify(Node n);

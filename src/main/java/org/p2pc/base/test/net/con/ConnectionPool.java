@@ -3,6 +3,14 @@ package org.p2pc.base.test.net.con;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.p2pc.base.test.map.Key;
+import org.p2pc.base.test.net.ClientException;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 
 /**
  * p2p connection pool 
@@ -23,6 +31,16 @@ public class ConnectionPool {
 	private ConcurrentHashMap<Key, Connection> active;
 	
 	/**
+	 * client thread pool
+	 */
+	private NioEventLoopGroup clientThreads;
+	
+	/**
+	 * client protocol handler
+	 */
+	private ClientDHTHandler clientHandler;
+		
+	/**
 	 * Request ID generator
 	 */
 	private static int reqid;
@@ -33,6 +51,11 @@ public class ConnectionPool {
 	private ConnectionPool() {
 		reqid  = (int) (Math.random() * Integer.MAX_VALUE);
 		active = new ConcurrentHashMap<>();
+		
+		// prepare client connections
+		clientThreads   = new NioEventLoopGroup();
+		clientHandler   = new ClientDHTHandler(true);
+		
 	}
 	
 	/**
@@ -60,14 +83,43 @@ public class ConnectionPool {
 	 * create or get a available host connection
 	 * 
 	 * @param host
+	 * @throws ClientException 
 	 */
-	public Connection getConnection(Host host) {
+	public Connection getConnection(Host host) throws ClientException {
+		
 		if (active.contains(host.getKey())) {
 			return active.get(host.getKey());
 		}
 		
-		// try to create a new connection
-		return null;
+		try {
+			// try to create a new connection
+			Bootstrap clientBootstrap = new Bootstrap();
+			clientBootstrap.channel(NioSocketChannel.class);
+			clientBootstrap.group(clientThreads);
+			clientBootstrap.remoteAddress(host.getHostname(), host.getPort());
+		    clientBootstrap.handler(new ChannelInitializer<SocketChannel>() {
+		        protected void initChannel(SocketChannel socketChannel) throws Exception {
+		            socketChannel.pipeline().addLast(clientHandler);
+		        }
+		    });
+		    
+		    ChannelFuture cf;
+			cf = clientBootstrap.connect().sync();
+		    ClientConnection con = new ClientConnection(cf,clientHandler);
+
+		    // handshake
+		    Key key = con.handshake();
+		    host.setKey(key);
+		    
+		    // register connection
+		    active.put(host.getKey(), con);
+		    
+		    return con;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			throw new ClientException("unable to connecto to host: " + host.getHostname());
+		}
+		
 	}
 	
 }
