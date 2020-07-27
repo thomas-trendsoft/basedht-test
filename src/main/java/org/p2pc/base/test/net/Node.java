@@ -44,7 +44,7 @@ public abstract class Node {
 	 * @param n
 	 * @return
 	 */
-	public abstract Node findSuccessor(Key key);
+	public abstract Node findSuccessor(Key key) throws ClientException;
 	
 	/**
 	 * notify node

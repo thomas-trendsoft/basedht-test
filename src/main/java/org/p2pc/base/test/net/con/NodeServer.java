@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import org.p2pc.base.test.net.ServerException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -52,6 +54,10 @@ public class NodeServer {
 	 */
 	private EventLoopGroup threadPool;
 	
+	/**
+	 * logging interface
+	 */
+	private Logger log;
 	
 	/**
 	 * default constructor 
@@ -59,6 +65,7 @@ public class NodeServer {
 	public NodeServer() {
 		pstart = 40000;
 		pend   = 65300;
+		log    = LoggerFactory.getLogger("NodeServer");
 	}
 		
 	/**
@@ -78,6 +85,8 @@ public class NodeServer {
 			}
 		}
 		
+		log.info("found local listening port: " + localPort);
+		
 		if (localPort == -1) {
 			throw new ServerException("no available server port found.");
 		}
@@ -96,13 +105,17 @@ public class NodeServer {
 		        }
 		    });
 		    
+		    log.info("node server start");
+		    
 		    future = server.bind().sync();
 		    future.channel().closeFuture().sync();
+		    
 		} catch(Exception e){
 		    e.printStackTrace();
 		} finally {
 		    threadPool.shutdownGracefully().sync();
-		}		
+		}
+		
 	}
 	
 	/**
@@ -117,6 +130,10 @@ public class NodeServer {
 	    } catch (IOException ignored) {
 	        return true;
 	    }
+	}
+
+	public int getPort() {
+		return localPort;
 	}	
 	
 

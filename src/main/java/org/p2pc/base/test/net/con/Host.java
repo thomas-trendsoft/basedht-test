@@ -10,6 +10,8 @@ public class Host {
 	
 	private int port;
 	
+	private int version;
+	
 	public Host(String hostname,int port) {
 		this.hostname = hostname;
 		this.port = port;
@@ -29,6 +31,19 @@ public class Host {
 
 	public int getPort() {
 		return port;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
+	}
+	
+	@Override
+	public String toString() {
+		return hostname + ":"  + port;
 	}
 
 }

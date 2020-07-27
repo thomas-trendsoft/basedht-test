@@ -6,6 +6,8 @@ import org.p2pc.base.test.net.con.Connection;
 import org.p2pc.base.test.net.con.ConnectionPool;
 import org.p2pc.base.test.net.con.Host;
 import org.p2pc.base.test.net.con.protocol.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * basic remote interface for other nodes
@@ -16,9 +18,9 @@ import org.p2pc.base.test.net.con.protocol.Message;
 public class RemoteNode extends Node {
 
 	/**
-	 * remote address and key id
+	 * Logging interface
 	 */
-	private Host host;
+	private Logger log;
 	
 	/**
 	 * default constructor 
@@ -26,6 +28,7 @@ public class RemoteNode extends Node {
 	 * @param host
 	 */
 	public RemoteNode(Host host) {
+		this.log  = LoggerFactory.getLogger("RemoteNode");
 		this.host = host;
 	}
 	
@@ -73,9 +76,23 @@ public class RemoteNode extends Node {
 
 	/**
 	 * find next successor node
+	 * @throws ClientException 
 	 */
 	@Override
-	public Node findSuccessor(Key key) {
+	public Node findSuccessor(Key key) throws ClientException {
+		log.info(host + " findSuccessor");
+
+		Message    msg = new Message(Message.FINDSUCCESSOR);
+		Connection con = ConnectionPool.singleton.getConnection(host);
+		Message    answer;
+		
+		try {
+			answer = con.sendMsg(msg).get();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
+		}
+		
 		return null;
 	}
 

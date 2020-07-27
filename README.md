@@ -10,7 +10,7 @@ https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf
 
 ## Status
 
-Not compiled no so ... we will have to see.
+Not compiled now so ... we will have to see.
 
 # Basic Protocol Definition
 
@@ -24,8 +24,8 @@ KEY = 256 BIT
 
 ## Hello Handshake
 
-- Request:  REQID + "HELLO" + "P2PC" + VER (3 BYTES) + KEY + 0x00
-- Response: REQID + "CP2P" + VER (3 BYTES) + KEY + 0x00
+- Request:  REQID + "HELLOP2PC" + VER (4 BYTES) + KEY + 0x00
+- Response: REQID + "CP2P" + VER (4 BYTES) + KEY + 0x00
 
 ## Ping 
 

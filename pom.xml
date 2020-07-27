@@ -4,17 +4,11 @@
   <artifactId>base-test-dht</artifactId>
   <version>0.1</version>
   
-  	<properties>
-    	<maven.compiler.target>11</maven.compiler.target>
-    	<maven.compiler.source>11</maven.compiler.source>
-	</properties>
-
 	<dependencies>
 		<dependency>
 		    <groupId>org.slf4j</groupId>
 		    <artifactId>slf4j-simple</artifactId>
 		    <version>1.7.30</version>
-		    <scope>test</scope>
 		</dependency>
 		<dependency>
 		    <groupId>org.slf4j</groupId>
@@ -32,5 +26,54 @@
 		    <version>4.1.51.Final</version>
 		</dependency>
 	</dependencies>  
+	
+ 	<build>
+  		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>libs</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>  		
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>org.p2pc.base.test.BaseDHTApp</mainClass>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>../libs/</classpathPrefix>
+						</manifest>
+					</archive>
+				</configuration> 
+			</plugin>         		
+  		  	<plugin>
+		   		<groupId>org.apache.maven.plugins</groupId>
+		   		<artifactId>maven-compiler-plugin</artifactId>
+		   		<version>2.3.2</version>
+		   		<configuration>
+		   		    <configuration>
+                    	<showWarnings>true</showWarnings>
+                	</configuration>
+		    		<source>11</source>
+		    		<target>11</target>
+		   		</configuration>
+		  	</plugin>			
+		</plugins>
+	</build> 
   
 </project>

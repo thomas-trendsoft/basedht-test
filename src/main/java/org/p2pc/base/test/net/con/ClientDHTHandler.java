@@ -1,7 +1,9 @@
 package org.p2pc.base.test.net.con;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.p2pc.base.test.net.con.protocol.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ public class ClientDHTHandler extends ChannelInboundHandlerAdapter {
 	/**
 	 * open requests
 	 */
-	private ConcurrentHashMap<Integer, ClientConnection> open;
+	private ConcurrentHashMap<Integer, CompletableFuture<Message>> open;
 		
 	/**
 	 * default constructor 
@@ -42,6 +44,7 @@ public class ClientDHTHandler extends ChannelInboundHandlerAdapter {
 	 */
 	public ClientDHTHandler(boolean debug) {
 		this.debug = debug;
+		this.open  = new ConcurrentHashMap<>();
 		this.log   = LoggerFactory.getLogger("DHTClient");
 	}
 	
@@ -51,7 +54,7 @@ public class ClientDHTHandler extends ChannelInboundHandlerAdapter {
 	 * @param rid
 	 * @param con
 	 */
-	public void register(Integer rid, ClientConnection con) {
+	public void register(Integer rid, CompletableFuture<Message> con) {
 		open.put(rid, con);
 	}
 	

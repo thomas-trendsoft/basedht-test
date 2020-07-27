@@ -8,6 +8,8 @@ import org.p2pc.base.test.CryptoUtil;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.NodeServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * base peer network node
@@ -43,11 +45,17 @@ public class LocalNode extends Node {
 	private Node successor;
 	
 	/**
+	 * logger interface
+	 */
+	private Logger log;
+	
+	/**
 	 * default constructor 
 	 * 
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public LocalNode(String name) throws NoSuchAlgorithmException {
+		log      = LoggerFactory.getLogger("LocalNode");
 		localMap = new ConcurrentHashMap<>();
 		key      = CryptoUtil.createRandomKey(name);
 		fingers  = new ArrayList<Node>(Key.size);
@@ -59,6 +67,7 @@ public class LocalNode extends Node {
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public void bootstrap() throws NoSuchAlgorithmException {
+		log.info("bootstrap node");
 		predecessor = null;
 		successor   = this;
 	}
@@ -67,8 +76,10 @@ public class LocalNode extends Node {
 	 * join a p2p network
 	 * 
 	 * @throws NoSuchAlgorithmException 
+	 * @throws ClientException 
 	 */
-	public void join(Node hub) throws NoSuchAlgorithmException {
+	public void join(Node hub) throws NoSuchAlgorithmException, ClientException {
+		log.info("join network: " + hub.host);
 		predecessor = null;
 		successor   = hub.findSuccessor(this.key);
 	}
@@ -101,8 +112,10 @@ public class LocalNode extends Node {
 	
 	/**
 	 * find Successor node of a given key
+	 * 
+	 * @throws ClientException 
 	 */
-	public Node findSuccessor(Key key) {
+	public Node findSuccessor(Key key) throws ClientException {
 		if (key.inside(this.key,successor.key)) {
 			return successor;
 		} else {

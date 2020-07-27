@@ -87,7 +87,7 @@ public class ConnectionPool {
 	 */
 	public Connection getConnection(Host host) throws ClientException {
 		
-		if (active.contains(host.getKey())) {
+		if (host.getKey() != null && active.contains(host.getKey())) {
 			return active.get(host.getKey());
 		}
 		
@@ -105,17 +105,16 @@ public class ConnectionPool {
 		    
 		    ChannelFuture cf;
 			cf = clientBootstrap.connect().sync();
-		    ClientConnection con = new ClientConnection(cf,clientHandler);
+		    ClientConnection con = new ClientConnection(host,cf,clientHandler);
 
-		    // handshake
-		    Key key = con.handshake();
-		    host.setKey(key);
+		    // handshake .. updates key and protocol version
+		    con.handshake();
 		    
 		    // register connection
 		    active.put(host.getKey(), con);
 		    
 		    return con;
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException("unable to connecto to host: " + host.getHostname());
 		}

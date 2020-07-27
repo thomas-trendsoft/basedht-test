@@ -2,6 +2,7 @@ package org.p2pc.base.test.net.con.protocol;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.p2pc.base.test.net.con.ConnectionPool;
@@ -16,10 +17,14 @@ import io.netty.util.CharsetUtil;
  */
 public class Message {
 	
-	public final static String GET   = "GET";
-	public final static String SET   = "SET";
-	public final static String DONE  = "DONE";
-	public final static String VALUE = "VAL";
+	public final static byte[] GET           = "GET\0".getBytes(CharsetUtil.UTF_8);
+	public final static byte[] SET           = "SET\0".getBytes(CharsetUtil.UTF_8);
+	public final static byte[] DONE          = "DONE\0".getBytes(CharsetUtil.UTF_8);
+	public final static byte[] VALUE         = "VAL\0".getBytes(CharsetUtil.UTF_8);
+	public static final byte[] HELLO         = "HELLOP2PC\0".getBytes(CharsetUtil.UTF_8);
+	public static final byte[] WELCOME       = "CP2P\0".getBytes(CharsetUtil.UTF_8);
+	public static final byte[] FINDSUCCESSOR = "FINDSUCC\0".getBytes(CharsetUtil.UTF_8);
+	public static final byte[] SUCCESSORFIND = "SUCCESSF\0".getBytes(CharsetUtil.UTF_8);
 	
 	/**
 	 * request id
@@ -29,7 +34,7 @@ public class Message {
 	/**
 	 * command or response msg
 	 */
-	private String msg;
+	private byte[] msg;
 	
 	/**
 	 * message parameter values
@@ -41,11 +46,24 @@ public class Message {
 	 * 
 	 * @param msg
 	 */
-	public Message(String msg) {
-		this.reqid = ConnectionPool.getRequestId();
-		this.msg   = msg;
+	public Message(byte[] msg) {
+		this.reqid  = ConnectionPool.getRequestId();
+		this.msg    = msg;
+		this.params = new LinkedList<>();
 	}
 	
+	public byte[] getMsg() {
+		return msg;
+	}
+
+	public List<Parameter> getParams() {
+		return params;
+	}
+
+	public void setParams(List<Parameter> params) {
+		this.params = params;
+	}
+
 	/**
 	 * add a parameter value to the message
 	 * 
@@ -84,7 +102,7 @@ public class Message {
 		ByteArrayOutputStream puf = new ByteArrayOutputStream();
 		
 		puf.write(toBytes(reqid));
-		puf.write(msg.getBytes(CharsetUtil.UTF_8));
+		puf.write(msg);
 		for (Parameter p : params) {
 			puf.write(p.getByteData());			
 		}

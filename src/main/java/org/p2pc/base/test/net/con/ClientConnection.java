@@ -1,11 +1,15 @@
 package org.p2pc.base.test.net.con;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-import org.p2pc.base.test.map.Key;
+import org.p2pc.base.test.net.ClientException;
 import org.p2pc.base.test.net.con.protocol.Message;
+import org.p2pc.base.test.net.con.protocol.Parameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -30,13 +34,25 @@ public class ClientConnection implements Connection {
 	private ClientDHTHandler handler;
 	
 	/**
+	 * host info
+	 */
+	private Host host;
+	
+	/**
+	 * logging interface
+	 */
+	private Logger log;
+	
+	/**
 	 * default constructor 
 	 * 
 	 * @param channel
 	 */
-	public ClientConnection(ChannelFuture channel,ClientDHTHandler handler) {
+	public ClientConnection(Host host,ChannelFuture channel,ClientDHTHandler handler) {
+		this.host    = host;
 		this.channel = channel;
 		this.handler = handler;
+		this.log     = LoggerFactory.getLogger("ClientCon");
 	}
 	
 	/**
@@ -47,7 +63,7 @@ public class ClientConnection implements Connection {
 	public CompletableFuture<Message> sendMsg(Message msg) throws IOException {
 		CompletableFuture<Message> cf = new CompletableFuture<Message>();
 		
-		handler.register(msg.getRequestId(), this);
+		handler.register(msg.getRequestId(), cf);
 		ByteBuf buf = Unpooled.copiedBuffer(msg.serializeMsg());
 		channel.channel().write(buf);
 		
@@ -64,11 +80,38 @@ public class ClientConnection implements Connection {
 	}
 
 	/**
+	 * handshake the client connection
 	 * 
 	 * @return
+	 * @throws IOException 
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws ClientException 
 	 */
-	public Key handshake() {
-		return null;
+	public void handshake() throws IOException, InterruptedException, ExecutionException, ClientException {
+		CompletableFuture<Message> cf = new CompletableFuture<Message>();
+		
+		System.out.println("make handshake");
+		Message hello = new Message(Message.HELLO);
+		handler.register(hello.getRequestId(), cf);
+		ByteBuf buf = Unpooled.copiedBuffer(hello.serializeMsg());
+		channel.channel().writeAndFlush(buf);
+		log.debug("handshake send...");
+		Message answer = cf.get();
+	
+		if (!Arrays.equals(Message.WELCOME, answer.getMsg())) {
+			throw new ClientException("unknown handshake answer: " + host.getHostname() + ":" + new String(answer.getMsg()));
+		}
+		
+		// check and extract params
+		if (answer.getParams().size() < 2) {
+			throw new ClientException("insufficient handshake answer (expected 2 params): " + host.getHostname() + ":" + answer.getParams().size());			
+		}
+		
+		Parameter pv = answer.getParams().get(0);
+		Parameter pk = answer.getParams().get(1);
+		
+		
 	}
 
 }
