@@ -1,10 +1,13 @@
 package org.p2pc.base.test.net;
 
+import java.util.concurrent.TimeUnit;
+
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.Connection;
 import org.p2pc.base.test.net.con.ConnectionPool;
 import org.p2pc.base.test.net.con.Host;
+import org.p2pc.base.test.net.con.protocol.Commands;
 import org.p2pc.base.test.net.con.protocol.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +42,12 @@ public class RemoteNode extends Node {
 	 */
 	@Override
 	public Value get(Key key) throws ClientException {
-		Message    msg = new Message(Message.GET);
+		Message    msg = new Message(Commands.GET);
 		Connection con = ConnectionPool.singleton.getConnection(host);
 		Message    answer;
 		
 		try {
-			answer = con.sendMsg(msg).get();
+			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException("failed to send get key msg: " + host.getHostname() + ":" + e.getMessage());
@@ -61,12 +64,12 @@ public class RemoteNode extends Node {
 	 */
 	@Override
 	public void set(Key key, Value data) throws ClientException {
-		Message    msg = new Message(Message.SET);
+		Message    msg = new Message(Commands.SET);
 		Connection con = ConnectionPool.singleton.getConnection(host);
 		Message    answer;
 		
 		try {
-			answer = con.sendMsg(msg).get();
+			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
@@ -82,12 +85,12 @@ public class RemoteNode extends Node {
 	public Node findSuccessor(Key key) throws ClientException {
 		log.info(host + " findSuccessor");
 
-		Message    msg = new Message(Message.FINDSUCCESSOR);
+		Message    msg = new Message(Commands.FINDSUCCESSOR);
 		Connection con = ConnectionPool.singleton.getConnection(host);
 		Message    answer;
 		
 		try {
-			answer = con.sendMsg(msg).get();
+			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());

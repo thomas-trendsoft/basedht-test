@@ -38,7 +38,7 @@ public class ConnectionPool {
 	/**
 	 * client protocol handler
 	 */
-	private ClientDHTHandler clientHandler;
+	private BaseDHTHandler clientHandler;
 		
 	/**
 	 * Request ID generator
@@ -54,7 +54,7 @@ public class ConnectionPool {
 		
 		// prepare client connections
 		clientThreads   = new NioEventLoopGroup();
-		clientHandler   = new ClientDHTHandler(true);
+		clientHandler   = new BaseDHTHandler(true);
 		
 	}
 	

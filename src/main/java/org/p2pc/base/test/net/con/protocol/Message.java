@@ -17,14 +17,26 @@ import io.netty.util.CharsetUtil;
  */
 public class Message {
 	
-	public final static byte[] GET           = "GET\0".getBytes(CharsetUtil.UTF_8);
-	public final static byte[] SET           = "SET\0".getBytes(CharsetUtil.UTF_8);
-	public final static byte[] DONE          = "DONE\0".getBytes(CharsetUtil.UTF_8);
-	public final static byte[] VALUE         = "VAL\0".getBytes(CharsetUtil.UTF_8);
-	public static final byte[] HELLO         = "HELLOP2PC\0".getBytes(CharsetUtil.UTF_8);
-	public static final byte[] WELCOME       = "CP2P\0".getBytes(CharsetUtil.UTF_8);
-	public static final byte[] FINDSUCCESSOR = "FINDSUCC\0".getBytes(CharsetUtil.UTF_8);
-	public static final byte[] SUCCESSORFIND = "SUCCESSF\0".getBytes(CharsetUtil.UTF_8);
+	public final static byte[] VERSION = {0x00,0x00,0x00,0x01};
+
+	public final static String GET           = "GET\0";
+	public final static String SET           = "SET\0";
+	public final static String DONE          = "DONE\0";
+	public final static String VALUE         = "VAL\0";
+	public static final String HELLO         = "HELLOP2PC\0";
+	public static final String WELCOME       = "CP2P\0";
+	public static final String FINDSUCCESSOR = "FINDSUCC\0";
+	public static final String SUCCESSORFIND = "SUCCESSF\0";
+	public static final String PING         = "PI\0";
+	public static final String PONG         = "PO\0";
+	
+	
+	public static final byte[][] msgLookup = {GET.getBytes(CharsetUtil.UTF_8),
+			SET.getBytes(CharsetUtil.UTF_8),DONE.getBytes(CharsetUtil.UTF_8),
+			VALUE.getBytes(CharsetUtil.UTF_8),HELLO.getBytes(CharsetUtil.UTF_8),
+			WELCOME.getBytes(CharsetUtil.UTF_8),FINDSUCCESSOR.getBytes(CharsetUtil.UTF_8),
+			SUCCESSORFIND.getBytes(CharsetUtil.UTF_8),PING.getBytes(CharsetUtil.UTF_8),
+			PONG.getBytes(CharsetUtil.UTF_8)};
 	
 	/**
 	 * request id
@@ -34,7 +46,7 @@ public class Message {
 	/**
 	 * command or response msg
 	 */
-	private byte[] msg;
+	private Commands cmd;
 	
 	/**
 	 * message parameter values
@@ -46,14 +58,26 @@ public class Message {
 	 * 
 	 * @param msg
 	 */
-	public Message(byte[] msg) {
+	public Message(Commands cmd) {
 		this.reqid  = ConnectionPool.getRequestId();
-		this.msg    = msg;
+		this.cmd    = cmd;
 		this.params = new LinkedList<>();
 	}
 	
-	public byte[] getMsg() {
-		return msg;
+	/**
+	 * parse constructor 
+	 * 
+	 * @param rid
+	 * @param msg
+	 */
+	public Message(int rid,Commands cmd) {
+		this.reqid  = rid;
+		this.cmd    = cmd;
+		this.params = new LinkedList<>();		
+	}
+	
+	public Commands getMsg() {
+		return cmd;
 	}
 
 	public List<Parameter> getParams() {
@@ -102,11 +126,11 @@ public class Message {
 		ByteArrayOutputStream puf = new ByteArrayOutputStream();
 		
 		puf.write(toBytes(reqid));
-		puf.write(msg);
+		puf.write(msgLookup[cmd.ordinal()]);
 		for (Parameter p : params) {
+			System.out.println(p);
 			puf.write(p.getByteData());			
 		}
-		puf.write(0x00);
 		
 		byte[] data = puf.toByteArray();
 		puf.close();

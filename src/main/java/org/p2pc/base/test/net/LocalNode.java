@@ -8,6 +8,7 @@ import org.p2pc.base.test.CryptoUtil;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.NodeServer;
+import org.p2pc.base.test.net.con.protocol.MessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +60,8 @@ public class LocalNode extends Node {
 		localMap = new ConcurrentHashMap<>();
 		key      = CryptoUtil.createRandomKey(name);
 		fingers  = new ArrayList<Node>(Key.size);
+		
+		MessageFactory.singleton.setKey(key);
 	}
 	
 	/**

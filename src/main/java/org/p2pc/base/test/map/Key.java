@@ -1,12 +1,14 @@
 package org.p2pc.base.test.map;
 
+import org.p2pc.base.test.net.con.protocol.Parameter;
+
 /**
  * hash map key value representation
  * 
  * @author tkrieger
  *
  */
-public class Key {
+public class Key implements Parameter {
 	
 	public static final int size = 256;
 	
@@ -33,6 +35,11 @@ public class Key {
 
 	public boolean inside(Key key, Key key2) {
 		return false;
+	}
+
+	@Override
+	public byte[] getByteData() {
+		return hash;
 	}
 	
 }

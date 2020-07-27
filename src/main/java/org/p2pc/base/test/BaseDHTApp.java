@@ -1,7 +1,6 @@
 package org.p2pc.base.test;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.CompletableFuture;
 
 import org.p2pc.base.test.net.LocalNode;
 import org.p2pc.base.test.net.RemoteNode;
@@ -59,7 +58,6 @@ public class BaseDHTApp {
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public void startNode() throws NoSuchAlgorithmException {
-		final CompletableFuture<Void> sup = new CompletableFuture<>();
 		
 		// setup local server point
 		try {

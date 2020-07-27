@@ -1,11 +1,13 @@
 package org.p2pc.base.test.net.con;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.p2pc.base.test.net.ClientException;
+import org.p2pc.base.test.net.con.protocol.Commands;
 import org.p2pc.base.test.net.con.protocol.Message;
 import org.p2pc.base.test.net.con.protocol.Parameter;
 import org.slf4j.Logger;
@@ -31,7 +33,7 @@ public class ClientConnection implements Connection {
 	/**
 	 * protocol handler
 	 */
-	private ClientDHTHandler handler;
+	private BaseDHTHandler handler;
 	
 	/**
 	 * host info
@@ -48,7 +50,7 @@ public class ClientConnection implements Connection {
 	 * 
 	 * @param channel
 	 */
-	public ClientConnection(Host host,ChannelFuture channel,ClientDHTHandler handler) {
+	public ClientConnection(Host host,ChannelFuture channel,BaseDHTHandler handler) {
 		this.host    = host;
 		this.channel = channel;
 		this.handler = handler;
@@ -92,15 +94,21 @@ public class ClientConnection implements Connection {
 		CompletableFuture<Message> cf = new CompletableFuture<Message>();
 		
 		System.out.println("make handshake");
-		Message hello = new Message(Message.HELLO);
+		Message hello = new Message(Commands.HELLO);
 		handler.register(hello.getRequestId(), cf);
 		ByteBuf buf = Unpooled.copiedBuffer(hello.serializeMsg());
 		channel.channel().writeAndFlush(buf);
 		log.debug("handshake send...");
-		Message answer = cf.get();
+		Message answer;
+		try {
+			answer = cf.get(2,TimeUnit.SECONDS);
+		} catch (TimeoutException e) {
+			e.printStackTrace();
+			throw new ClientException("handshake timeout: " + host);
+		}
 	
-		if (!Arrays.equals(Message.WELCOME, answer.getMsg())) {
-			throw new ClientException("unknown handshake answer: " + host.getHostname() + ":" + new String(answer.getMsg()));
+		if (Commands.WELCOME != answer.getMsg()) {
+			throw new ClientException("unknown handshake answer: " + host);
 		}
 		
 		// check and extract params

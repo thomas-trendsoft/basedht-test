@@ -1,5 +1,13 @@
 package org.p2pc.base.test.net.con;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.p2pc.base.test.map.Key;
+import org.p2pc.base.test.net.con.protocol.Message;
+import org.p2pc.base.test.net.con.protocol.MessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +16,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.CharsetUtil;
 
 /**
  * server base dht protocol handler
@@ -24,28 +31,83 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 	private boolean debug;
 	
 	/**
+	 * msg parser
+	 */
+	private MessageFactory parser;
+	
+	/**
 	 * logging interface
 	 */
 	private Logger log;
 	
 	/**
+	 * open requests
+	 */
+	private ConcurrentHashMap<Integer, CompletableFuture<Message>> open;	
+	
+	/**
 	 * default constructor 
+	 * 
+	 * TODO check key init
 	 * 
 	 * @param debug
 	 */
 	public BaseDHTHandler(boolean debug) {
-		this.debug = debug;
-		this.log   = LoggerFactory.getLogger("DHTServer");
+		this.debug  = debug;
+		this.parser = MessageFactory.singleton;
+		this.open   = new ConcurrentHashMap<>();
+		this.log    = LoggerFactory.getLogger("DHTServer");
+	}
+	
+	/**
+	 * register request
+	 * 
+	 * @param rid
+	 * @param con
+	 */
+	public void register(Integer rid, CompletableFuture<Message> con) {
+		open.put(rid, con);
+	}
+	
+	private void sendMsg(ChannelHandlerContext ctx,Message m) {
+		ByteBuf buf;
+		try {
+			buf = Unpooled.wrappedBuffer(m.serializeMsg());
+			ctx.channel().writeAndFlush(buf);
+		} catch (IOException e) {
+			e.printStackTrace();
+			log.error("failed to send message: " + e.getMessage());
+		}
 	}
 	
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf inBuffer = (ByteBuf) msg;
 
-        String received = inBuffer.toString(CharsetUtil.UTF_8);
-        System.out.println("Server received: " + received);
-
-        ctx.write(Unpooled.copiedBuffer(received, CharsetUtil.UTF_8));
+        try {
+            Message m = parser.parseMessage(inBuffer);
+            
+            switch (m.getMsg()) {
+            case PING:
+            	break;
+            case HELLO:
+            	sendMsg(ctx, parser.welcome(m.getRequestId()));
+            	return;
+            case FINDSUCCESSOR:
+            	break;
+            }
+            
+            CompletableFuture<Message> cf = open.get(m.getRequestId());
+            if (cf == null) {
+            	log.warn("unexpected message: " + m.getRequestId() + " / " + m.getMsg());
+            } else {
+            	log.info("got request: " + m.getRequestId());
+            	cf.complete(m);
+            }
+            
+        } catch (Exception e) {
+        	e.printStackTrace();
+        }
     }
 
     @Override
