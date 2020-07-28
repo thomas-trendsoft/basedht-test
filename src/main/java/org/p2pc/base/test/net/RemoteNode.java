@@ -86,6 +86,8 @@ public class RemoteNode extends Node {
 		log.info(host + " findSuccessor");
 
 		Message    msg = new Message(Commands.FINDSUCCESSOR);
+		msg.addParam(key);
+		
 		Connection con = ConnectionPool.singleton.getConnection(host);
 		Message    answer;
 		

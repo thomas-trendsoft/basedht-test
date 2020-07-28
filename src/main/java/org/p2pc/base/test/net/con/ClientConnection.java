@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 import org.p2pc.base.test.net.con.protocol.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -35,11 +33,6 @@ public class ClientConnection implements Connection {
 	private Host host;
 	
 	/**
-	 * logging interface
-	 */
-	private Logger log;
-	
-	/**
 	 * default constructor 
 	 * 
 	 * @param channel
@@ -48,7 +41,6 @@ public class ClientConnection implements Connection {
 		this.host    = host;
 		this.channel = channel;
 		this.handler = handler;
-		this.log     = LoggerFactory.getLogger("ClientCon");
 	}
 	
 	/**
@@ -61,7 +53,8 @@ public class ClientConnection implements Connection {
 		
 		handler.register(msg.getRequestId(), cf);
 		ByteBuf buf = Unpooled.copiedBuffer(msg.serializeMsg());
-		channel.channel().write(buf);
+		System.out.println("client send: " + buf.readableBytes());
+		channel.channel().writeAndFlush(buf);
 		
 		return cf;
 	}

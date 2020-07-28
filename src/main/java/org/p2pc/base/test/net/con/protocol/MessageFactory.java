@@ -77,11 +77,12 @@ public class MessageFactory {
 		
 		int  c = 0;
 		byte r;
-		while ((r = buf.readByte()) != -1 && c < len) {
+		while ((r = buf.readByte()) != -1 && c < (len-1)) {
 			b[0] = r;
 			c++;
 		}
 		
+		c++;
 		if (len != c) throw new ClientException("unexpoected eof on msg read");
 		
 		return b;
@@ -125,11 +126,14 @@ public class MessageFactory {
 		switch (cmd) {
 		case HELLO:
 			m.addParam(new Version(readArray(4, data)));
-			m.addParam(new Key(readArray(4, data), "key"));
+			m.addParam(new Key(readArray(32, data), "key"));
 			break;
 		case WELCOME:
 			m.addParam(new Version(readArray(4, data)));
-			m.addParam(new Key(readArray(4, data), "key"));
+			m.addParam(new Key(readArray(32, data), "key"));
+			break;
+		case FINDSUCCESSOR:
+			m.addParam(new Key(readArray(32, data), "key"));
 			break;
 		default:
 			throw new ClientException("missing implement message command: " + scmd);

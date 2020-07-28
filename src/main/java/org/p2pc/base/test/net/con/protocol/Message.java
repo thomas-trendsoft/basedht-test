@@ -128,7 +128,6 @@ public class Message {
 		puf.write(toBytes(reqid));
 		puf.write(msgLookup[cmd.ordinal()]);
 		for (Parameter p : params) {
-			System.out.println(p);
 			puf.write(p.getByteData());			
 		}
 		

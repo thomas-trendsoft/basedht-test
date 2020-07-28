@@ -2,10 +2,11 @@ package org.p2pc.base.test;
 
 import java.security.NoSuchAlgorithmException;
 
-import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.LocalNode;
 import org.p2pc.base.test.net.RemoteNode;
+import org.p2pc.base.test.net.con.Host;
 import org.p2pc.base.test.net.con.NodeServer;
+import org.p2pc.base.test.net.con.protocol.BaseDHTProtocol;
 import org.p2pc.base.test.net.con.protocol.MessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,11 +50,13 @@ public class BaseDHTApp {
 		this.config = config;
 		
 		// create local key first random
-		this.config.key = CryptoUtil.createRandomKey("local");
+		this.config.key = CryptoUtil.createRandomKey("localhost");
 		MessageFactory.singleton.setConfig(this.config);
 		
 		this.node   = new LocalNode(this.config.key);
-		this.server = new NodeServer();		
+		this.server = new NodeServer();	
+		
+		BaseDHTProtocol.singleton.setNode(this.node);
 		
 		log.info("basedht app start / " + config);
 	}
@@ -81,6 +84,10 @@ public class BaseDHTApp {
 			e.printStackTrace();
 			log.error("error on startup server: " + e.getMessage());
 		}
+		
+		// put host info to local node
+		// TODO check eth or ip name for listening for hash name and real hostname
+		node.setHost(new Host("localhost", server.getPort()));	
 		
 		// start chord algorithm
 		try {

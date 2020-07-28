@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -61,7 +60,7 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 		this.parser   = MessageFactory.singleton;
 		this.open     = new ConcurrentHashMap<>();
 		this.log      = LoggerFactory.getLogger("DHTServer");
-		this.protocol = new BaseDHTProtocol();
+		this.protocol = BaseDHTProtocol.singleton;
 	}
 	
 	/**
@@ -83,10 +82,17 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 		open.put(rid, con);
 	}
 	
+	/**
+	 * send a p2p message 
+	 * 
+	 * @param ctx
+	 * @param m
+	 */
 	private void sendMsg(ChannelHandlerContext ctx,Message m) {
 		ByteBuf buf;
 		try {
 			buf = Unpooled.wrappedBuffer(m.serializeMsg());
+			System.out.println("send: " + buf.readableBytes());
 			ctx.channel().writeAndFlush(buf);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -109,8 +115,12 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
             case HELLO:
             	sendMsg(ctx, protocol.hello(m));
             	return;
+            case FINDSUCCESSOR: 
+            	sendMsg(ctx, protocol.findSuccessor(m));
+            	return;
             default:
             	// check if expected request
+            	System.out.println("check expected: " + m.getRequestId() + ":" + m.getMsg());
                 CompletableFuture<Message> cf = open.get(m.getRequestId());
                 if (cf == null) {
                 	log.warn("unexpected message: " + m.getRequestId() + " / " + m.getMsg());
@@ -127,8 +137,7 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(Unpooled.EMPTY_BUFFER)
-                .addListener(ChannelFutureListener.CLOSE);
+        ctx.writeAndFlush(Unpooled.EMPTY_BUFFER);
     }
 
     @Override

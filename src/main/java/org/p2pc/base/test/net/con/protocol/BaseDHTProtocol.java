@@ -9,13 +9,11 @@ import java.util.concurrent.TimeoutException;
 import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.ClientException;
-import org.p2pc.base.test.net.con.ClientConnection;
+import org.p2pc.base.test.net.LocalNode;
+import org.p2pc.base.test.net.Node;
 import org.p2pc.base.test.net.con.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 
 /**
  * chord protocol implementation 
@@ -24,6 +22,11 @@ import io.netty.buffer.Unpooled;
  *
  */
 public class BaseDHTProtocol {
+	
+	/**
+	 * singleton accessor 
+	 */
+	public static final BaseDHTProtocol singleton = new BaseDHTProtocol();
 	
 	/**
 	 * message parser and creator
@@ -36,11 +39,25 @@ public class BaseDHTProtocol {
 	private Logger log;
 	
 	/**
+	 * Node interface
+	 */
+	private LocalNode node;
+	
+	/**
 	 * default constructor 
 	 */
-	public BaseDHTProtocol() {
+	private BaseDHTProtocol() {
 		factory = MessageFactory.singleton;
 		log     = LoggerFactory.getLogger("DHTProtocol");
+	}
+	
+	/**
+	 * node interface 
+	 * 
+	 * @param node
+	 */
+	public void setNode(LocalNode node) {
+		this.node = node;
 	}
 
 	/**
@@ -50,6 +67,7 @@ public class BaseDHTProtocol {
 	 * @return
 	 */
 	public Message hello(Message m) {
+		log.info("respond welcome: " + m.getRequestId());
 		return factory.welcome(m.getRequestId());
 	}
 
@@ -74,8 +92,6 @@ public class BaseDHTProtocol {
 	 */
 	public void handshake(Connection con) throws IOException, InterruptedException, ExecutionException, ClientException {
 		CompletableFuture<Message> cf = new CompletableFuture<Message>();
-		
-		System.out.println("make handshake");
 		
 		Message hello = MessageFactory.singleton.hello();
 
@@ -105,6 +121,24 @@ public class BaseDHTProtocol {
 		con.getHost().setVersion(new Version(pv.getByteData()));
 		con.getHost().setKey((new Key(pk.getByteData(), con.getHost().getHostname())));
 		
+	}
+
+	public Message findSuccessor(Message m) {
+		log.info("find successor: " + m.getRequestId());
+		try {
+			Key fk = new Key(m.getParams().get(0).getByteData(),"fs");
+			Node n = node.findSuccessor(fk);
+			
+			if (node != null) {
+				Message ret = new Message(m.getRequestId(),Commands.SUCCESSORFIND);
+				ret.addParam(n);
+				return ret;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
 	}	
 
 }

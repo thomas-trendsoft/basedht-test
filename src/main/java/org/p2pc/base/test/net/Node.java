@@ -1,8 +1,13 @@
 package org.p2pc.base.test.net;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.Host;
+import org.p2pc.base.test.net.con.protocol.Parameter;
 
 /**
  * base node interface 
@@ -10,7 +15,7 @@ import org.p2pc.base.test.net.con.Host;
  * @author tkrieger
  *
  */
-public abstract class Node {
+public abstract class Node implements Parameter {
 	
 	/**
 	 * host information
@@ -22,6 +27,14 @@ public abstract class Node {
 	 */
 	protected Key key;
 	
+	public Host getHost() {
+		return host;
+	}
+
+	public void setHost(Host host) {
+		this.host = host;
+	}
+
 	/**
 	 * lookup a map key
 	 * 
@@ -52,5 +65,27 @@ public abstract class Node {
 	 * @param n
 	 */
 	public abstract void notify(Node n);
+	
+	/**
+	 * create node parameter serialization
+	 */
+	@Override
+	public byte[] getByteData() throws IOException {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		DataOutputStream       out = new DataOutputStream(bout);
+		
+		System.out.println("bytes host: " + this.host);
+		out.write(this.key.hash);
+		out.writeInt(this.host.getPort());
+		
+		out.writeBytes(host.getHostname());
+		out.write(0);
+		
+		out.close();
+		
+		byte[] data = bout.toByteArray();
+		
+		return data;
+	}
 
 }

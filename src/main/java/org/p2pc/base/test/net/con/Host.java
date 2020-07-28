@@ -1,7 +1,12 @@
 package org.p2pc.base.test.net.con;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
+import org.p2pc.base.test.net.con.protocol.Parameter;
 
 /**
  * host info object
@@ -9,7 +14,7 @@ import org.p2pc.base.test.map.Key;
  * @author tkrieger
  *
  */
-public class Host {
+public class Host implements Parameter {
 	
 	/**
 	 * host key value
@@ -69,6 +74,18 @@ public class Host {
 	@Override
 	public String toString() {
 		return hostname + ":"  + port;
+	}
+
+	@Override
+	public byte[] getByteData() throws IOException {
+		ByteArrayOutputStream  out = new ByteArrayOutputStream();
+		DataOutputStream      dout = new DataOutputStream(out);
+		
+		dout.writeInt(port);
+		dout.writeBytes(hostname);
+		
+		
+		return null;
 	}
 
 }

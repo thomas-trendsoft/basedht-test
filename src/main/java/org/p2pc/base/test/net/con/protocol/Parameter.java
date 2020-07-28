@@ -1,9 +1,9 @@
 package org.p2pc.base.test.net.con.protocol;
 
-import io.netty.buffer.ByteBuf;
+import java.io.IOException;
 
 public interface Parameter {
 	
-	byte[] getByteData();
+	byte[] getByteData() throws IOException;
 	
 }

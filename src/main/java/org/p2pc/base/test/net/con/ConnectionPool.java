@@ -110,6 +110,8 @@ public class ConnectionPool {
 		    // handshake .. updates key and protocol version
 		    clientHandler.protocol().handshake(con);
 		    
+		    System.out.println("handshake done: " + con.getHost() + ":" + con.getHost().getKey());
+		    
 		    // register connection
 		    active.put(host.getKey(), con);
 		    

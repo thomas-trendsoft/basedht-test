@@ -4,12 +4,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.p2pc.base.test.CryptoUtil;
-import org.p2pc.base.test.NodeConfig;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.NodeServer;
-import org.p2pc.base.test.net.con.protocol.MessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,11 +27,6 @@ public class LocalNode extends Node {
 	 * chord finger map
 	 */
 	private ArrayList<Node> fingers;
-	
-	/**
-	 * node server interface
-	 */
-	private NodeServer server;
 	
 	/**
 	 * ring links
@@ -81,7 +73,7 @@ public class LocalNode extends Node {
 	 * @throws ClientException 
 	 */
 	public void join(Node hub) throws NoSuchAlgorithmException, ClientException {
-		log.info("join network: " + hub.host);
+		log.info("join network: " + hub.host + ":" + this.key);
 		predecessor = null;
 		successor   = hub.findSuccessor(this.key);
 	}
@@ -118,11 +110,11 @@ public class LocalNode extends Node {
 	 * @throws ClientException 
 	 */
 	public Node findSuccessor(Key key) throws ClientException {
+		System.out.println("ckey: " + key);
 		if (key.inside(this.key,successor.key)) {
 			return successor;
 		} else {
 			Node p = closestPrecedingNode(key);
-			if (p == this) return null; // no cyclic call
 			return p.findSuccessor(key);
 		}
 	}
@@ -132,9 +124,10 @@ public class LocalNode extends Node {
 	 * 
 	 * @param key
 	 * @return
+	 * @throws ClientException 
 	 */
-	private Node closestPrecedingNode(Key key) {
-		for (int i=Key.size;i>=1;i--) {
+	private Node closestPrecedingNode(Key key) throws ClientException {
+		for (int i=fingers.size()-1;i>=0;i--) {
 			Node n = fingers.get(i);
 			if (n != null && n.key.inside(this.key,key)) {
 				return n;

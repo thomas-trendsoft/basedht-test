@@ -22,6 +22,8 @@ All text commands byte encoded in UTF-8
 
 KEY = 256 BIT 
 
+NODE = KEY + PORT + HOSTNAME + 0x00 
+
 ## Hello Handshake
 
 - Request:  REQID + "HELLOP2PC" + 0x00 + VER (4 BYTES) + KEY 

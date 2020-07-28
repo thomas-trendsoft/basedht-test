@@ -24,6 +24,7 @@ public class CryptoUtil {
 	public static Key createRandomKey(String name) throws NoSuchAlgorithmException {
 		String iv = UUID.randomUUID().toString();
 		
+		// TODO check if normal chord init with listening url (init resort needed)
 		byte[] kv = hashData((iv + name).getBytes());
 		
 		return new Key(kv,name);
