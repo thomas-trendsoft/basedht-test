@@ -10,7 +10,13 @@ https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf
 
 ## Status
 
-Can bootstrap a single node ;) start to work basic protocol handling
+Basic Protocol handling is working.
+
+Can bootstrap one node 
+
+Can join a second node 
+
+Have to stabilize and organize fingers to get a correct routing for next nodes
 
 # Basic Protocol Definition
 
@@ -26,7 +32,7 @@ NODE = KEY + PORT + HOSTNAME + 0x00
 
 ## Hello Handshake
 
-- Request:  REQID + "HELLOP2PC" + 0x00 + VER (4 BYTES) + KEY 
+- Request:  REQID + "HELLOP2PC" + 0x00 + VER (4 BYTES) + NODE
 - Response: REQID + "CP2P" + 0x00 + VER (4 BYTES) + KEY 
 
 ## Ping 

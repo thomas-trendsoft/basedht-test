@@ -86,6 +86,14 @@ public abstract class Node implements Parameter {
 	public abstract void notify(Node n) throws ClientException;
 	
 	/**
+	 * ping the node to check alive 
+	 * 
+	 * @return
+	 * @throws ClientException 
+	 */
+	public abstract boolean ping() throws ClientException;
+	
+	/**
 	 * create node parameter serialization
 	 */
 	@Override

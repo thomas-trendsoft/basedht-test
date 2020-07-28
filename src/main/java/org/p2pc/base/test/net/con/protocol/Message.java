@@ -33,13 +33,21 @@ public class Message {
 	public static final String PREDANSWER   = "ERP\0";
 	public static final String NOTIFY       = "NOTIFY\0";
 	
-	public static final byte[][] msgLookup = {GET.getBytes(CharsetUtil.UTF_8),
-			SET.getBytes(CharsetUtil.UTF_8),DONE.getBytes(CharsetUtil.UTF_8),
-			VALUE.getBytes(CharsetUtil.UTF_8),HELLO.getBytes(CharsetUtil.UTF_8),
-			WELCOME.getBytes(CharsetUtil.UTF_8),FINDSUCCESSOR.getBytes(CharsetUtil.UTF_8),
-			SUCCESSORFIND.getBytes(CharsetUtil.UTF_8),PING.getBytes(CharsetUtil.UTF_8),
-			PONG.getBytes(CharsetUtil.UTF_8),PREDECESSOR.getBytes(CharsetUtil.UTF_8),
-			PREDANSWER.getBytes(CharsetUtil.UTF_8)};
+	public static final byte[][] msgLookup = {
+			GET.getBytes(CharsetUtil.UTF_8),
+			SET.getBytes(CharsetUtil.UTF_8),
+			DONE.getBytes(CharsetUtil.UTF_8),
+			VALUE.getBytes(CharsetUtil.UTF_8),
+			HELLO.getBytes(CharsetUtil.UTF_8),
+			WELCOME.getBytes(CharsetUtil.UTF_8),
+			FINDSUCCESSOR.getBytes(CharsetUtil.UTF_8),
+			SUCCESSORFIND.getBytes(CharsetUtil.UTF_8),
+			PING.getBytes(CharsetUtil.UTF_8),
+			PONG.getBytes(CharsetUtil.UTF_8),
+			PREDECESSOR.getBytes(CharsetUtil.UTF_8),
+			PREDANSWER.getBytes(CharsetUtil.UTF_8),
+			NOTIFY.getBytes(CharsetUtil.UTF_8)
+		};
 	
 	/**
 	 * request id

@@ -51,11 +51,11 @@ public class BaseDHTApp {
 		
 		// create local key first random
 		this.config.key = CryptoUtil.createRandomKey("localhost");
-		MessageFactory.singleton.setConfig(this.config);
 		
 		this.node   = new LocalNode(this.config.key);
 		this.server = new NodeServer();	
 		
+		MessageFactory.singleton.setNode(this.node);
 		BaseDHTProtocol.singleton.setNode(this.node);
 		
 		log.info("basedht app start / " + config);

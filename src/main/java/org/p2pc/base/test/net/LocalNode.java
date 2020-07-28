@@ -88,6 +88,8 @@ public class LocalNode extends Node {
 		routes.setPredecessor(null);
 		routes.setSuccessor(hub.findSuccessor(this.key));
 		log.info("joined success: " + routes.getSuccessor().getHost());
+
+		stabilizeTask.start();
 	}
 	
 	/**
@@ -132,9 +134,18 @@ public class LocalNode extends Node {
 
 
 	@Override
-	public void notify(Node n) {
-		// TODO Auto-generated method stub
-		
+	public void notify(Node n) throws ClientException {
+		// check update predecessor
+		if (routes.getPredecessor() == null || 
+			n.key.stabilizeInside(routes.getPredecessor().key, this.key)) {
+			log.info(("update predecessor: " + n.getHost()));
+			routes.setPredecessor(n);
+		}
+	}
+
+	@Override
+	public boolean ping() throws ClientException {
+		return true;
 	}
 
 }

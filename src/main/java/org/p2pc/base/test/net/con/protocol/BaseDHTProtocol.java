@@ -11,7 +11,10 @@ import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.ClientException;
 import org.p2pc.base.test.net.LocalNode;
 import org.p2pc.base.test.net.Node;
+import org.p2pc.base.test.net.RemoteNode;
 import org.p2pc.base.test.net.con.Connection;
+import org.p2pc.base.test.net.con.ConnectionPool;
+import org.p2pc.base.test.net.con.Host;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +47,16 @@ public class BaseDHTProtocol {
 	private LocalNode node;
 	
 	/**
+	 * null value node
+	 */
+	private Node nullNode;
+	
+	/**
 	 * default constructor 
 	 */
 	private BaseDHTProtocol() {
+		byte[] ekey = new byte[32];
+		nullNode = new RemoteNode(new Host("null", -1, new Key(ekey,"")));
 		factory = MessageFactory.singleton;
 		log     = LoggerFactory.getLogger("DHTProtocol");
 	}
@@ -78,7 +88,7 @@ public class BaseDHTProtocol {
 	 * @return
 	 */
 	public Message ping(Message m) {
-		return null;
+		return new Message(m.getRequestId(),Commands.PONG);
 	}
 	
 	/**
@@ -142,11 +152,30 @@ public class BaseDHTProtocol {
 	}
 
 	public Message predecessor(Message m) {
-		Message answer = new Message(m.getRequestId(), Commands.VALUE);
+		Message answer = new Message(m.getRequestId(), Commands.PREDANSWER);
 		
-		answer.addParam(node.getPredecessor());
+		Node pnode = node.getPredecessor();
+		if (pnode == null) {
+			log.info("null predecessor return");
+			answer.addParam(nullNode);
+		} else {
+			log.info("send my predecessor: " + pnode.getHost());
+			answer.addParam(pnode);			
+		}
 		
 		return answer;
+	}
+
+	public void notifyNode(Message m) {
+		log.info("got notified");
+		Node n = (Node) m.getParams().get(0);
+		
+		try {
+			node.notify(n);
+		} catch (ClientException e) {
+			e.printStackTrace();
+			log.error("failed to notify local: " + e.getMessage());
+		}
 	}	
 
 }

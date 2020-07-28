@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.p2pc.base.test.net.Node;
 import org.p2pc.base.test.net.con.protocol.BaseDHTProtocol;
 import org.p2pc.base.test.net.con.protocol.Message;
 import org.p2pc.base.test.net.con.protocol.MessageFactory;
@@ -14,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelHandler.Sharable;
 
 /**
  * server base dht protocol handler
@@ -21,13 +23,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * @author tkrieger
  *
  */
+@Sharable
 public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
     
-	/**
-	 * debuging protocol available
-	 */
-	private boolean debug;
-	
 	/**
 	 * msg parser
 	 */
@@ -56,7 +54,6 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 	 * @param debug
 	 */
 	public BaseDHTHandler(boolean debug) {
-		this.debug    = debug;
 		this.parser   = MessageFactory.singleton;
 		this.open     = new ConcurrentHashMap<>();
 		this.log      = LoggerFactory.getLogger("DHTServer");
@@ -92,7 +89,7 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 		ByteBuf buf;
 		try {
 			buf = Unpooled.wrappedBuffer(m.serializeMsg());
-			System.out.println("send: " + buf.readableBytes());
+			//System.out.println("send: " + m.getMsg() + ":" + buf.readableBytes());
 			ctx.channel().writeAndFlush(buf);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -104,7 +101,9 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf inBuffer = (ByteBuf) msg;
 
-        System.out.println("recv: " + inBuffer.readableBytes());
+        // TODO add connection as server connection to pool (how to host)
+        
+        //System.out.println("recv: " + inBuffer.readableBytes());
         try {
             Message m = parser.parseMessage(inBuffer);
             
@@ -113,6 +112,8 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
             	sendMsg(ctx, protocol.ping(m));
             	break;
             case HELLO:
+            	Node ocn = (Node) m.getParams().get(1);
+            	ConnectionPool.singleton.registerConnection(ocn.getHost().toString(), new ServerConnection(ocn.getHost(), ctx, this));
             	sendMsg(ctx, protocol.hello(m));
             	return;
             case FINDSUCCESSOR: 
@@ -121,14 +122,15 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
             case PREDECESSOR:
             	sendMsg(ctx, protocol.predecessor(m));
             	return;
+            case NOTIFY:
+            	protocol.notifyNode(m);
+            	return;
             default:
             	// check if expected request
-            	System.out.println("check expected: " + m.getRequestId() + ":" + m.getMsg());
                 CompletableFuture<Message> cf = open.get(m.getRequestId());
                 if (cf == null) {
                 	log.warn("unexpected message: " + m.getRequestId() + " / " + m.getMsg());
                 } else {
-                	log.info("got request: " + m.getRequestId());
                 	cf.complete(m);
                 }
             	break;

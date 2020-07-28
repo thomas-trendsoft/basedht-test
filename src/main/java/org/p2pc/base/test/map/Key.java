@@ -35,7 +35,6 @@ public class Key implements Parameter {
 	}
 	
 	public boolean stabilizeInside(Key from, Key to) throws ClientException {
-		System.out.println("sinside: " + from + "/" + to);
 		
 		// check if border gets passed
 		if (from.compareTo(to) < 0) {
@@ -47,7 +46,6 @@ public class Key implements Parameter {
 	}	
 
 	public boolean inside(Key from, Key to) throws ClientException {
-		System.out.println("inside: " + from + "/" + to);
 		
 		// bootstrap case (or conflict?)
 		if (from.equals(to)) {

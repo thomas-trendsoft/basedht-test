@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.p2pc.base.test.NodeConfig;
 import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.ClientException;
@@ -41,7 +40,7 @@ public class MessageFactory {
 	/**
 	 * local config
 	 */
-	private NodeConfig config;
+	private Node node;
 	
 	/**
 	 * default constructor 
@@ -59,12 +58,20 @@ public class MessageFactory {
 		cmdLookup.put(Message.SUCCESSORFIND, Commands.SUCCESSORFIND);
 		cmdLookup.put(Message.PING,          Commands.PING);
 		cmdLookup.put(Message.PONG,          Commands.PONG);
+		cmdLookup.put(Message.PREDECESSOR,   Commands.PREDECESSOR);
+		cmdLookup.put(Message.PREDANSWER,    Commands.PREDANSWER);
+		cmdLookup.put(Message.NOTIFY,        Commands.NOTIFY);
 		
 		version = new BaseParameter(Message.VERSION);
 	}
 	
-	public void setConfig(NodeConfig cfg) {
-		this.config = cfg;
+	/**
+	 * set local node ref
+	 * 
+	 * @param base
+	 */
+	public void setNode(Node base) {
+		this.node = base;
 	}
 	
 	/**
@@ -91,6 +98,13 @@ public class MessageFactory {
 		return b;
 	}
 	
+	/**
+	 * read a string from the data stream
+	 * 
+	 * @param data
+	 * @return
+	 * @throws IOException
+	 */
 	private String readString(ByteBuf data) throws IOException {
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
 		byte   r;
@@ -115,7 +129,6 @@ public class MessageFactory {
 	 * @throws IOException
 	 */
 	public Message parseMessage(ByteBuf data) throws ClientException, IOException {
-		int c;
 		int rid = data.readInt();
 		
 		String  scmd = readString(data);
@@ -128,10 +141,15 @@ public class MessageFactory {
 
 		Message m = new Message(rid,cmd);
 		switch (cmd) {
+		case PREDECESSOR:
+		case PING:
+		case PONG:
+			// no params
+			break;
 		case HELLO:
 			System.out.println(data.readableBytes());
 			m.addParam(new Version(readArray(4, data)));
-			m.addParam(new Key(readArray(32, data), "key"));
+			m.addParam(parseNode(data));
 			break;
 		case WELCOME:
 			m.addParam(new Version(readArray(4, data)));
@@ -146,6 +164,9 @@ public class MessageFactory {
 		case PREDANSWER:
 			m.addParam(parseNode(data));
 			break;
+		case NOTIFY:
+			m.addParam(parseNode(data));
+			break;
 		default:
 			throw new ClientException("missing implement message command: " + scmd);
 		}
@@ -154,6 +175,14 @@ public class MessageFactory {
 		
 	}
 
+	/**
+	 * parse a node parameter
+	 * 
+	 * @param data
+	 * @return
+	 * @throws ClientException
+	 * @throws IOException
+	 */
 	private Node parseNode(ByteBuf data) throws ClientException, IOException {
 		Key key     = new Key(readArray(32, data),"key");
 		int port    = data.readInt();
@@ -171,7 +200,7 @@ public class MessageFactory {
 		Message hello = new Message(Commands.HELLO);
 		
 		hello.addParam(version);
-		hello.addParam(config.key);
+		hello.addParam(node);
 		
 		return hello;
 	}
@@ -186,7 +215,7 @@ public class MessageFactory {
 		Message m = new Message(rid,Commands.WELCOME);
 		
 		m.addParam(version);
-		m.addParam(config.key);
+		m.addParam(node.getHost().getKey());
 		
 		return m;
 	}

@@ -57,6 +57,53 @@ public class StabilizeTask implements Runnable {
 	public void stop() {
 		stop = true;
 	}
+	
+	/**
+	 * stabilize steps
+	 */
+	public void stabilize() {
+		// already possible?
+		Node s = routes.getSuccessor();
+		if (s == null) return;
+		
+		log.info("stabilize");
+
+		try {
+			Node x = s.getPredecessor();
+			
+			if (x != null && x.key.stabilizeInside(node.key, s.key)) {
+				log.info("update successor: " + x.getHost());
+				routes.setSuccessor(x);
+			}
+			
+			s.notify(node);
+			log.info("notify done");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+	}
+
+	/**
+	 * check predecessor of current routing
+	 */
+	private void checkPredecessor() {
+		log.info("check_predecessor");
+		Node        n = routes.getPredecessor();
+		boolean check = false;
+		
+		if (n != null)
+			try {
+				check = n.ping();
+			} catch (ClientException e) {
+				e.printStackTrace();
+				check = false;
+			}
+		
+		if (!check) {
+			log.info("predecessor lost");
+			routes.setPredecessor(null);
+		}
+	}
 
 	/**
 	 * thread start point
@@ -68,26 +115,11 @@ public class StabilizeTask implements Runnable {
 			// wait a short moment
 			try { Thread.sleep(2000); } catch (Exception e) { e.printStackTrace(); }
 
-			// already possible?
-			Node s = routes.getSuccessor();
-			if (s == null) continue;
+			// call stabilize
+			stabilize();
 			
-			log.info("stabilize");
-
-			try {
-				Node x = s.getPredecessor();
-				
-				if (x.key.stabilizeInside(node.key, s.key)) {
-					routes.setSuccessor(x);
-				}
-				
-				s.notify(node);
-				
-				System.out.println();				
-			} catch (Exception e) {
-				e.printStackTrace();
-				continue;
-			}
+			// check predecessor 
+			checkPredecessor();
 			
 		}
 	}

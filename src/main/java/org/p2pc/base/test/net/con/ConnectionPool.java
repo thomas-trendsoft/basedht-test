@@ -28,7 +28,7 @@ public class ConnectionPool {
 	/**
 	 * active connection map
 	 */
-	private ConcurrentHashMap<Key, Connection> active;
+	private ConcurrentHashMap<String, Connection> active;
 	
 	/**
 	 * client thread pool
@@ -75,8 +75,8 @@ public class ConnectionPool {
 	 * @param host host key
 	 * @param con open connection
 	 */
-	public void registerConnection(Key host,Connection con) {
-		active.put(host, con);
+	public void registerConnection(String url,Connection con) {
+		active.put(url, con);
 	}
 	
 	/**
@@ -86,9 +86,10 @@ public class ConnectionPool {
 	 * @throws ClientException 
 	 */
 	public Connection getConnection(Host host) throws ClientException {
+		String lup = host.toString();
 		
-		if (host.getKey() != null && active.contains(host.getKey())) {
-			return active.get(host.getKey());
+		if (active.containsKey(lup)) {
+			return active.get(lup);
 		}
 		
 		try {
@@ -113,7 +114,7 @@ public class ConnectionPool {
 		    System.out.println("handshake done: " + con.getHost() + ":" + con.getHost().getKey());
 		    
 		    // register connection
-		    active.put(host.getKey(), con);
+		    active.put(lup, con);
 		    
 		    return con;
 		} catch (Exception e) {

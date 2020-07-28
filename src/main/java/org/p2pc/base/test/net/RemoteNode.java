@@ -45,10 +45,9 @@ public class RemoteNode extends Node {
 	public Value get(Key key) throws ClientException {
 		Message    msg = new Message(Commands.GET);
 		Connection con = ConnectionPool.singleton.getConnection(host);
-		Message    answer;
 		
 		try {
-			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
+			con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException("failed to send get key msg: " + host.getHostname() + ":" + e.getMessage());
@@ -59,16 +58,16 @@ public class RemoteNode extends Node {
 
 	/**
 	 * send a set key signal
+	 * 
 	 * @throws ClientException 
 	 */
 	@Override
 	public void set(Key key, Value data) throws ClientException {
 		Message    msg = new Message(Commands.SET);
 		Connection con = ConnectionPool.singleton.getConnection(host);
-		Message    answer;
 		
 		try {
-			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
+			con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
@@ -78,6 +77,7 @@ public class RemoteNode extends Node {
 
 	/**
 	 * find next successor node
+	 * 
 	 * @throws ClientException 
 	 */
 	@Override
@@ -104,12 +104,16 @@ public class RemoteNode extends Node {
 		return (Node) answer.getParams().get(0);
 	}
 
+	/**
+	 * notify on remote node
+	 */
 	@Override
 	public void notify(Node n) throws ClientException {
 		Message    msg = new Message(Commands.NOTIFY);
 		Connection con = ConnectionPool.singleton.getConnection(host);
 		
 		try {
+			msg.addParam(n);
 			con.sendMsg(msg);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -118,6 +122,9 @@ public class RemoteNode extends Node {
 		
 	}
 
+	/**
+	 * query remote nodes predecessor
+	 */
 	@Override
 	public Node getPredecessor() throws ClientException {
 		Message    msg = new Message(Commands.PREDECESSOR);
@@ -135,7 +142,29 @@ public class RemoteNode extends Node {
 			throw new ClientException("no node as respond from find successor");
 		}
 		
-		return (Node) answer.getParams().get(0);
+		Node n = (Node)answer.getParams().get(0);
+		log.info("got predecessor: " + n.getHost());
+		
+		// check null node msg
+		if (n.getHost().getPort() == -1)
+			return null;
+		
+		return n;
+	}
+
+	@Override
+	public boolean ping() throws ClientException {
+		Message    msg = new Message(Commands.PING);
+		Connection con = ConnectionPool.singleton.getConnection(host);
+		
+		try {
+			con.sendMsg(msg).get(2, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
 	}
 
 	
