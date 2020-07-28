@@ -14,6 +14,13 @@ import org.p2pc.base.test.net.con.protocol.Message;
 public interface Connection {
 	
 	/**
+	 * get remote host
+	 * 
+	 * @return
+	 */
+	Host getHost();
+	
+	/**
 	 * sends data and 
 	 * @param data
 	 * @return

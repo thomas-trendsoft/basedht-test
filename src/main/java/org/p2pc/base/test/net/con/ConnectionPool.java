@@ -108,7 +108,7 @@ public class ConnectionPool {
 		    ClientConnection con = new ClientConnection(host,cf,clientHandler);
 
 		    // handshake .. updates key and protocol version
-		    con.handshake();
+		    clientHandler.protocol().handshake(con);
 		    
 		    // register connection
 		    active.put(host.getKey(), con);

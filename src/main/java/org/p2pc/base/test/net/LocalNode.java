@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.p2pc.base.test.CryptoUtil;
+import org.p2pc.base.test.NodeConfig;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.NodeServer;
@@ -55,13 +56,11 @@ public class LocalNode extends Node {
 	 * 
 	 * @throws NoSuchAlgorithmException 
 	 */
-	public LocalNode(String name) throws NoSuchAlgorithmException {
+	public LocalNode(Key k) throws NoSuchAlgorithmException {
 		log      = LoggerFactory.getLogger("LocalNode");
 		localMap = new ConcurrentHashMap<>();
-		key      = CryptoUtil.createRandomKey(name);
+		key      = k;
 		fingers  = new ArrayList<Node>(Key.size);
-		
-		MessageFactory.singleton.setKey(key);
 	}
 	
 	/**

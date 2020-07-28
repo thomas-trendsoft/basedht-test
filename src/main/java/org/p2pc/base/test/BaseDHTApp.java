@@ -2,9 +2,11 @@ package org.p2pc.base.test;
 
 import java.security.NoSuchAlgorithmException;
 
+import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.LocalNode;
 import org.p2pc.base.test.net.RemoteNode;
 import org.p2pc.base.test.net.con.NodeServer;
+import org.p2pc.base.test.net.con.protocol.MessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,12 @@ public class BaseDHTApp {
 	public BaseDHTApp(NodeConfig config) throws NoSuchAlgorithmException {
 		this.log    = LoggerFactory.getLogger("DHTApp");
 		this.config = config;
-		this.node   = new LocalNode("node" + Math.round(100*Math.random()));
+		
+		// create local key first random
+		this.config.key = CryptoUtil.createRandomKey("local");
+		MessageFactory.singleton.setConfig(this.config);
+		
+		this.node   = new LocalNode(this.config.key);
 		this.server = new NodeServer();		
 		
 		log.info("basedht app start / " + config);

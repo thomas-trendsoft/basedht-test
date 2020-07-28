@@ -1,17 +1,42 @@
 package org.p2pc.base.test.net.con;
 
+import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
 
+/**
+ * host info object
+ * 
+ * @author tkrieger
+ *
+ */
 public class Host {
 	
+	/**
+	 * host key value
+	 */
 	private Key key;
 	
+	/**
+	 * protocol version
+	 */
+	private Version version;
+	
+	/**
+	 * hostname or ip 
+	 */
 	private String hostname;
 	
+	/**
+	 * listening port 
+	 */
 	private int port;
 	
-	private int version;
-	
+	/**
+	 * default constructor 
+	 * 
+	 * @param hostname
+	 * @param port
+	 */
 	public Host(String hostname,int port) {
 		this.hostname = hostname;
 		this.port = port;
@@ -33,11 +58,11 @@ public class Host {
 		return port;
 	}
 
-	public int getVersion() {
+	public Version getVersion() {
 		return version;
 	}
 
-	public void setVersion(int version) {
+	public void setVersion(Version version) {
 		this.version = version;
 	}
 	

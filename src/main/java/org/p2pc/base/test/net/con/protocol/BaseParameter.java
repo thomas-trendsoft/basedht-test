@@ -1,5 +1,7 @@
 package org.p2pc.base.test.net.con.protocol;
 
+import io.netty.buffer.ByteBuf;
+
 public class BaseParameter implements Parameter {
 
 	private byte[] data;
@@ -12,5 +14,6 @@ public class BaseParameter implements Parameter {
 	public byte[] getByteData() {
 		return data;
 	}
+
 
 }

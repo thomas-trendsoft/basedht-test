@@ -2,14 +2,8 @@ package org.p2pc.base.test.net.con;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.p2pc.base.test.net.ClientException;
-import org.p2pc.base.test.net.con.protocol.Commands;
 import org.p2pc.base.test.net.con.protocol.Message;
-import org.p2pc.base.test.net.con.protocol.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,55 +65,12 @@ public class ClientConnection implements Connection {
 		
 		return cf;
 	}
-	
-	/**
-	 * async message receiver 
-	 * 
-	 * @param msg
-	 */
-	public void receiveMsg(Message msg) {
-		
+
+
+	@Override
+	public Host getHost() {
+		return host;
 	}
 
-	/**
-	 * handshake the client connection
-	 * 
-	 * @return
-	 * @throws IOException 
-	 * @throws ExecutionException 
-	 * @throws InterruptedException 
-	 * @throws ClientException 
-	 */
-	public void handshake() throws IOException, InterruptedException, ExecutionException, ClientException {
-		CompletableFuture<Message> cf = new CompletableFuture<Message>();
-		
-		System.out.println("make handshake");
-		Message hello = new Message(Commands.HELLO);
-		handler.register(hello.getRequestId(), cf);
-		ByteBuf buf = Unpooled.copiedBuffer(hello.serializeMsg());
-		channel.channel().writeAndFlush(buf);
-		log.debug("handshake send...");
-		Message answer;
-		try {
-			answer = cf.get(2,TimeUnit.SECONDS);
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-			throw new ClientException("handshake timeout: " + host);
-		}
-	
-		if (Commands.WELCOME != answer.getMsg()) {
-			throw new ClientException("unknown handshake answer: " + host);
-		}
-		
-		// check and extract params
-		if (answer.getParams().size() < 2) {
-			throw new ClientException("insufficient handshake answer (expected 2 params): " + host.getHostname() + ":" + answer.getParams().size());			
-		}
-		
-		Parameter pv = answer.getParams().get(0);
-		Parameter pk = answer.getParams().get(1);
-		
-		
-	}
 
 }

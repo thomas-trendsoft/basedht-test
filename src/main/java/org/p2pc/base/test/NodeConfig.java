@@ -3,6 +3,7 @@ package org.p2pc.base.test;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.con.Host;
 
 /**
@@ -24,9 +25,19 @@ public class NodeConfig {
 	public int localPort;
 	
 	/**
+	 * node name
+	 */
+	public String name;
+	
+	/**
 	 * available hub hostnames
 	 */
 	public List<Host> hubs;
+	
+	/**
+	 * active key
+	 */
+	public Key key;
 	
 	/**
 	 * default constructor 
@@ -36,6 +47,7 @@ public class NodeConfig {
 		bootstrap = false;
 		localPort = -1;
 		hubs      = new LinkedList<>();
+		name      = "node" + Math.round(100*Math.random());
 		
 		if (args != null && args.length > 0)
 			parseArgs(args);
@@ -53,6 +65,8 @@ public class NodeConfig {
 			// bootstrap param
 			if (s.compareTo("bootstrap")==0) {
 				bootstrap = true;
+			} else if (s.startsWith("-name=")) {
+				this.name = s.substring(7);
 			// hub address
 			} else if ((dp = s.indexOf(":")) > 0){
 				 String    hn = s.substring(0,dp);

@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.p2pc.base.test.NodeConfig;
+import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.ClientException;
 
@@ -29,14 +31,14 @@ public class MessageFactory {
 	private HashMap<String,Commands> cmdLookup;
 	
 	/**
-	 * local key
-	 */
-	private Key key;
-
-	/**
 	 * local version
 	 */
 	private BaseParameter version;
+	
+	/**
+	 * local config
+	 */
+	private NodeConfig config;
 	
 	/**
 	 * default constructor 
@@ -58,23 +60,31 @@ public class MessageFactory {
 		version = new BaseParameter(Message.VERSION);
 	}
 	
-	public void setKey(Key own) {
-		this.key = own;
+	public void setConfig(NodeConfig cfg) {
+		this.config = cfg;
 	}
 	
 	/**
-	 * generate welcome answer 
+	 * read a fix amount of bytes
 	 * 
-	 * @param rid
+	 * @param len
+	 * @param buf
 	 * @return
+	 * @throws ClientException
 	 */
-	public Message welcome(int rid) {
-		Message m = new Message(rid,Commands.WELCOME);
+	private byte[] readArray(int len,ByteBuf buf) throws ClientException {
+		byte[] b = new byte[len];
 		
-		m.addParam(version);
-		m.addParam(key);
+		int  c = 0;
+		byte r;
+		while ((r = buf.readByte()) != -1 && c < len) {
+			b[0] = r;
+			c++;
+		}
 		
-		return m;
+		if (len != c) throw new ClientException("unexpoected eof on msg read");
+		
+		return b;
 	}
 	
 	/**
@@ -98,8 +108,11 @@ public class MessageFactory {
 		do {
 			r = data.readByte();
 			buf.write(r);
+			c++;
 		} while (r != 0 && c < 15);
+		buf.close();
 		
+		System.out.println("c = " + c);
 		String scmd = new String(buf.toByteArray(),CharsetUtil.UTF_8);
 		Commands cmd = cmdLookup.get(scmd);
 		
@@ -107,13 +120,56 @@ public class MessageFactory {
 		if (cmd == null) {
 			throw new ClientException("unknown command: " + scmd);
 		} 
-		
-		buf.close();
-		
+
 		Message m = new Message(rid,cmd);
+		switch (cmd) {
+		case HELLO:
+			m.addParam(new Version(readArray(4, data)));
+			m.addParam(new Key(readArray(4, data), "key"));
+			break;
+		case WELCOME:
+			m.addParam(new Version(readArray(4, data)));
+			m.addParam(new Key(readArray(4, data), "key"));
+			break;
+		default:
+			throw new ClientException("missing implement message command: " + scmd);
+		}
+		
+		
 		
 		return m;
 		
 	}
+
+	/**
+	 * generate a hello msg
+	 * 
+	 * @return
+	 */
+	public Message hello() {
+		Message hello = new Message(Commands.HELLO);
+		
+		hello.addParam(version);
+		hello.addParam(config.key);
+		
+		return hello;
+	}
+	
+	/**
+	 * generate welcome answer 
+	 * 
+	 * @param rid
+	 * @return
+	 */
+	public Message welcome(int rid) {
+		Message m = new Message(rid,Commands.WELCOME);
+		
+		m.addParam(version);
+		m.addParam(config.key);
+		
+		return m;
+	}
+	
+	
 
 }

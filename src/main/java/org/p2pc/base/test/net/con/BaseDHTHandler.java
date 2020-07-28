@@ -1,11 +1,10 @@
 package org.p2pc.base.test.net.con;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.p2pc.base.test.map.Key;
+import org.p2pc.base.test.net.con.protocol.BaseDHTProtocol;
 import org.p2pc.base.test.net.con.protocol.Message;
 import org.p2pc.base.test.net.con.protocol.MessageFactory;
 import org.slf4j.Logger;
@@ -43,7 +42,12 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 	/**
 	 * open requests
 	 */
-	private ConcurrentHashMap<Integer, CompletableFuture<Message>> open;	
+	private ConcurrentHashMap<Integer, CompletableFuture<Message>> open;
+	
+	/**
+	 * protocol implementation
+	 */
+	private BaseDHTProtocol protocol;
 	
 	/**
 	 * default constructor 
@@ -53,10 +57,20 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 	 * @param debug
 	 */
 	public BaseDHTHandler(boolean debug) {
-		this.debug  = debug;
-		this.parser = MessageFactory.singleton;
-		this.open   = new ConcurrentHashMap<>();
-		this.log    = LoggerFactory.getLogger("DHTServer");
+		this.debug    = debug;
+		this.parser   = MessageFactory.singleton;
+		this.open     = new ConcurrentHashMap<>();
+		this.log      = LoggerFactory.getLogger("DHTServer");
+		this.protocol = new BaseDHTProtocol();
+	}
+	
+	/**
+	 * protocol handler 
+	 * 
+	 * @return
+	 */
+	public BaseDHTProtocol protocol() {
+		return protocol;
 	}
 	
 	/**
@@ -84,27 +98,28 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf inBuffer = (ByteBuf) msg;
 
+        System.out.println("recv: " + inBuffer.readableBytes());
         try {
             Message m = parser.parseMessage(inBuffer);
             
             switch (m.getMsg()) {
             case PING:
+            	sendMsg(ctx, protocol.ping(m));
             	break;
             case HELLO:
-            	sendMsg(ctx, parser.welcome(m.getRequestId()));
+            	sendMsg(ctx, protocol.hello(m));
             	return;
-            case FINDSUCCESSOR:
+            default:
+            	// check if expected request
+                CompletableFuture<Message> cf = open.get(m.getRequestId());
+                if (cf == null) {
+                	log.warn("unexpected message: " + m.getRequestId() + " / " + m.getMsg());
+                } else {
+                	log.info("got request: " + m.getRequestId());
+                	cf.complete(m);
+                }
             	break;
             }
-            
-            CompletableFuture<Message> cf = open.get(m.getRequestId());
-            if (cf == null) {
-            	log.warn("unexpected message: " + m.getRequestId() + " / " + m.getMsg());
-            } else {
-            	log.info("got request: " + m.getRequestId());
-            	cf.complete(m);
-            }
-            
         } catch (Exception e) {
         	e.printStackTrace();
         }
