@@ -11,6 +11,9 @@ public enum Commands {
 	FINDSUCCESSOR,
 	SUCCESSORFIND, 
 	PING, 
-	PONG
+	PONG,
+	PREDECESSOR,
+	PREDANSWER, 
+	NOTIFY
 
 }

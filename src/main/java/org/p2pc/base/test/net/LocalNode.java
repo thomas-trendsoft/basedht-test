@@ -1,12 +1,10 @@
 package org.p2pc.base.test.net;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.map.Value;
-import org.p2pc.base.test.net.con.NodeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,19 +22,9 @@ public class LocalNode extends Node {
 	private ConcurrentHashMap<Key, Value> localMap;
 	
 	/**
-	 * chord finger map
+	 * routing information
 	 */
-	private ArrayList<Node> fingers;
-	
-	/**
-	 * ring links
-	 */
-	private Node predecessor;
-	
-	/**
-	 * ring links
-	 */
-	private Node successor;
+	private Routing routes;
 	
 	/**
 	 * logger interface
@@ -44,15 +32,36 @@ public class LocalNode extends Node {
 	private Logger log;
 	
 	/**
+	 * fingers routing table updater
+	 */
+	private FingerTask fingersTask;
+	
+	/**
+	 * stabilization task
+	 */
+	private StabilizeTask stabilizeTask;
+	
+	/**
 	 * default constructor 
 	 * 
 	 * @throws NoSuchAlgorithmException 
 	 */
 	public LocalNode(Key k) throws NoSuchAlgorithmException {
-		log      = LoggerFactory.getLogger("LocalNode");
-		localMap = new ConcurrentHashMap<>();
-		key      = k;
-		fingers  = new ArrayList<Node>(Key.size);
+		log         = LoggerFactory.getLogger("LocalNode");
+		localMap    = new ConcurrentHashMap<>();
+		key         = k;
+		
+		routes        = new Routing();
+		fingersTask   = new FingerTask();
+		stabilizeTask = new StabilizeTask(this,routes);
+	}
+	
+	/**
+	 * get the current predecessor
+	 */
+	@Override
+	public Node getPredecessor() {
+		return routes.getPredecessor();
 	}
 	
 	/**
@@ -62,8 +71,10 @@ public class LocalNode extends Node {
 	 */
 	public void bootstrap() throws NoSuchAlgorithmException {
 		log.info("bootstrap node");
-		predecessor = null;
-		successor   = this;
+		routes.setPredecessor(null);
+		routes.setSuccessor(this);
+		
+		stabilizeTask.start();
 	}
 	
 	/**
@@ -74,9 +85,9 @@ public class LocalNode extends Node {
 	 */
 	public void join(Node hub) throws NoSuchAlgorithmException, ClientException {
 		log.info("join network: " + hub.host + ":" + this.key);
-		predecessor = null;
-		successor   = hub.findSuccessor(this.key);
-		log.info("joined success: " + successor);
+		routes.setPredecessor(null);
+		routes.setSuccessor(hub.findSuccessor(this.key));
+		log.info("joined success: " + routes.getSuccessor().getHost());
 	}
 	
 	/**
@@ -111,36 +122,19 @@ public class LocalNode extends Node {
 	 * @throws ClientException 
 	 */
 	public Node findSuccessor(Key key) throws ClientException {
-		System.out.println("ckey: " + key);
-		if (key.inside(this.key,successor.key)) {
-			return successor;
+		if (key.inside(this.key,routes.getSuccessor().key)) {
+			return routes.getSuccessor();
 		} else {
-			Node p = closestPrecedingNode(key);
+			Node p = routes.closestPrecedingNode(key,this);
 			return p.findSuccessor(key);
 		}
 	}
 
-	/**
-	 * look up closest node of key inside the finger links
-	 * 
-	 * @param key
-	 * @return
-	 * @throws ClientException 
-	 */
-	private Node closestPrecedingNode(Key key) throws ClientException {
-		for (int i=fingers.size()-1;i>=0;i--) {
-			Node n = fingers.get(i);
-			if (n != null && n.key.inside(this.key,key)) {
-				return n;
-			}
-		}
-		return this;
-	}
 
 	@Override
 	public void notify(Node n) {
 		// TODO Auto-generated method stub
 		
 	}
-	
+
 }

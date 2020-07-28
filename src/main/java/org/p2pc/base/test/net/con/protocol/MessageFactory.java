@@ -143,6 +143,9 @@ public class MessageFactory {
 		case SUCCESSORFIND:
 			m.addParam(parseNode(data));
 			break;
+		case PREDANSWER:
+			m.addParam(parseNode(data));
+			break;
 		default:
 			throw new ClientException("missing implement message command: " + scmd);
 		}
@@ -152,7 +155,7 @@ public class MessageFactory {
 	}
 
 	private Node parseNode(ByteBuf data) throws ClientException, IOException {
-		Key key     = new Key(readArray(4, data),"key");
+		Key key     = new Key(readArray(32, data),"key");
 		int port    = data.readInt();
 		String host = readString(data);
 		

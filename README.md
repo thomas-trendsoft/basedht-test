@@ -47,10 +47,15 @@ NODE = KEY + PORT + HOSTNAME + 0x00
 ## Find Successor
 
 - Request: REQID + "FINDSUCC" + 0x00 + KEY 
-- Response REQID + "SUCCESSF" + 0x00 + NODE + 0x00 / OR instead NODE 0x00 directly if nothing found
+- Response REQID + "SUCCESSF" + 0x00 + NODE 
 
 ## Notify
 
 - Request:  REQID + "NOTIFY" + 0x00 + NODE 
 - Response: REQID + "DONE" + 0x00
+
+## Ask Predecessor
+
+- Request:  REQID + "PRE" + 0x00 
+- Response: REQID + "ERP" + 0x00 + NODE
 

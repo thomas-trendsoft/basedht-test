@@ -139,6 +139,14 @@ public class BaseDHTProtocol {
 		}
 		
 		return null;
+	}
+
+	public Message predecessor(Message m) {
+		Message answer = new Message(m.getRequestId(), Commands.VALUE);
+		
+		answer.addParam(node.getPredecessor());
+		
+		return answer;
 	}	
 
 }

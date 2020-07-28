@@ -33,6 +33,7 @@ public class RemoteNode extends Node {
 	public RemoteNode(Host host) {
 		this.log  = LoggerFactory.getLogger("RemoteNode");
 		this.host = host;
+		this.key  = host.getKey();
 	}
 	
 	/**
@@ -52,8 +53,6 @@ public class RemoteNode extends Node {
 			e.printStackTrace();
 			throw new ClientException("failed to send get key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
-		
-		
 		
 		return null;
 	}
@@ -106,8 +105,37 @@ public class RemoteNode extends Node {
 	}
 
 	@Override
-	public void notify(Node n) {
+	public void notify(Node n) throws ClientException {
+		Message    msg = new Message(Commands.NOTIFY);
+		Connection con = ConnectionPool.singleton.getConnection(host);
 		
+		try {
+			con.sendMsg(msg);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
+		}
+		
+	}
+
+	@Override
+	public Node getPredecessor() throws ClientException {
+		Message    msg = new Message(Commands.PREDECESSOR);
+		Connection con = ConnectionPool.singleton.getConnection(host);
+		Message    answer;
+		
+		try {
+			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
+		}
+		
+		if (answer.getParams().size() == 0) {
+			throw new ClientException("no node as respond from find successor");
+		}
+		
+		return (Node) answer.getParams().get(0);
 	}
 
 	

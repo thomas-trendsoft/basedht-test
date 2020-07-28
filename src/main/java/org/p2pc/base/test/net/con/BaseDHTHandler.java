@@ -118,6 +118,9 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
             case FINDSUCCESSOR: 
             	sendMsg(ctx, protocol.findSuccessor(m));
             	return;
+            case PREDECESSOR:
+            	sendMsg(ctx, protocol.predecessor(m));
+            	return;
             default:
             	// check if expected request
             	System.out.println("check expected: " + m.getRequestId() + ":" + m.getMsg());

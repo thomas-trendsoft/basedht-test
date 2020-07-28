@@ -33,6 +33,18 @@ public class Key implements Parameter {
 		this.hash = hash;
 		this.name = name;
 	}
+	
+	public boolean stabilizeInside(Key from, Key to) throws ClientException {
+		System.out.println("sinside: " + from + "/" + to);
+		
+		// check if border gets passed
+		if (from.compareTo(to) < 0) {
+			return from.compareTo(this) > 0 && to.compareTo(this) < 0;
+		}
+		
+		return this.compareTo(from) > 0 || this.compareTo(to) < 0;
+		
+	}	
 
 	public boolean inside(Key from, Key to) throws ClientException {
 		System.out.println("inside: " + from + "/" + to);

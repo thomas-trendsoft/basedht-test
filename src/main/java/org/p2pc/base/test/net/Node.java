@@ -26,11 +26,21 @@ public abstract class Node implements Parameter {
 	 * key for map position
 	 */
 	protected Key key;
-	
+
+	/**
+	 * host accessor 
+	 * 
+	 * @return
+	 */
 	public Host getHost() {
 		return host;
 	}
 
+	/**
+	 * host setter 
+	 * 
+	 * @param host
+	 */
 	public void setHost(Host host) {
 		this.host = host;
 	}
@@ -60,11 +70,20 @@ public abstract class Node implements Parameter {
 	public abstract Node findSuccessor(Key key) throws ClientException;
 	
 	/**
+	 * get current predecessor 
+	 * 
+	 * @return
+	 * @throws ClientException 
+	 */
+	public abstract Node getPredecessor() throws ClientException;
+	
+	/**
 	 * notify node
 	 * 
 	 * @param n
+	 * @throws ClientException 
 	 */
-	public abstract void notify(Node n);
+	public abstract void notify(Node n) throws ClientException;
 	
 	/**
 	 * create node parameter serialization
