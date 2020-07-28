@@ -135,11 +135,12 @@ public class MessageFactory {
 		case FINDSUCCESSOR:
 			m.addParam(new Key(readArray(32, data), "key"));
 			break;
+		case SUCCESSORFIND:
+			m.addParam(new Key(readArray(32, data), "key"));
+			break;
 		default:
 			throw new ClientException("missing implement message command: " + scmd);
 		}
-		
-		
 		
 		return m;
 		
