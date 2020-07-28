@@ -76,6 +76,7 @@ public class LocalNode extends Node {
 		log.info("join network: " + hub.host + ":" + this.key);
 		predecessor = null;
 		successor   = hub.findSuccessor(this.key);
+		log.info("joined success: " + successor);
 	}
 	
 	/**

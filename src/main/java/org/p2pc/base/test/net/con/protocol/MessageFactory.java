@@ -8,6 +8,9 @@ import org.p2pc.base.test.NodeConfig;
 import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.ClientException;
+import org.p2pc.base.test.net.Node;
+import org.p2pc.base.test.net.RemoteNode;
+import org.p2pc.base.test.net.con.Host;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.CharsetUtil;
@@ -88,6 +91,21 @@ public class MessageFactory {
 		return b;
 	}
 	
+	private String readString(ByteBuf data) throws IOException {
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		byte   r;
+		
+		int c=0;
+		do {
+			r = data.readByte();
+			buf.write(r);
+			c++;
+		} while (r != 0 && c < 20);
+		buf.close();
+		
+		return new String(buf.toByteArray(),CharsetUtil.UTF_8);		
+	}
+	
 	/**
 	 * parse a network message
 	 * 
@@ -100,21 +118,7 @@ public class MessageFactory {
 		int c;
 		int rid = data.readInt();
 		
-		ByteArrayOutputStream buf = new ByteArrayOutputStream();
-		System.out.println("rid : " + rid);
-		
-		byte   r;
-		
-		c=0;
-		do {
-			r = data.readByte();
-			buf.write(r);
-			c++;
-		} while (r != 0 && c < 15);
-		buf.close();
-		
-		System.out.println("c = " + c);
-		String scmd = new String(buf.toByteArray(),CharsetUtil.UTF_8);
+		String  scmd = readString(data);
 		Commands cmd = cmdLookup.get(scmd);
 		
 		// check command
@@ -125,6 +129,7 @@ public class MessageFactory {
 		Message m = new Message(rid,cmd);
 		switch (cmd) {
 		case HELLO:
+			System.out.println(data.readableBytes());
 			m.addParam(new Version(readArray(4, data)));
 			m.addParam(new Key(readArray(32, data), "key"));
 			break;
@@ -136,7 +141,7 @@ public class MessageFactory {
 			m.addParam(new Key(readArray(32, data), "key"));
 			break;
 		case SUCCESSORFIND:
-			m.addParam(new Key(readArray(32, data), "key"));
+			m.addParam(parseNode(data));
 			break;
 		default:
 			throw new ClientException("missing implement message command: " + scmd);
@@ -144,6 +149,14 @@ public class MessageFactory {
 		
 		return m;
 		
+	}
+
+	private Node parseNode(ByteBuf data) throws ClientException, IOException {
+		Key key     = new Key(readArray(4, data),"key");
+		int port    = data.readInt();
+		String host = readString(data);
+		
+		return new RemoteNode(new Host(host, port, key));
 	}
 
 	/**

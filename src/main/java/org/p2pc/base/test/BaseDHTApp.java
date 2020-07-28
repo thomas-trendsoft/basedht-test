@@ -87,7 +87,7 @@ public class BaseDHTApp {
 		
 		// put host info to local node
 		// TODO check eth or ip name for listening for hash name and real hostname
-		node.setHost(new Host("localhost", server.getPort()));	
+		node.setHost(new Host("localhost", server.getPort(),this.config.key));	
 		
 		// start chord algorithm
 		try {

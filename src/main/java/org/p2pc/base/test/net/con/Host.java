@@ -8,6 +8,8 @@ import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.con.protocol.Parameter;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * host info object
  * 
@@ -42,9 +44,10 @@ public class Host implements Parameter {
 	 * @param hostname
 	 * @param port
 	 */
-	public Host(String hostname,int port) {
+	public Host(String hostname,int port,Key key) {
 		this.hostname = hostname;
-		this.port = port;
+		this.port     = port;
+		this.key      = key;
 	}
 
 	public Key getKey() {
@@ -87,5 +90,6 @@ public class Host implements Parameter {
 		
 		return null;
 	}
+	
 
 }

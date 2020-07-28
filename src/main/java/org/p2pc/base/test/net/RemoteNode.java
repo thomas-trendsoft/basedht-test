@@ -98,7 +98,11 @@ public class RemoteNode extends Node {
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
 		
-		return null;
+		if (answer.getParams().size() == 0) {
+			throw new ClientException("no node as respond from find successor");
+		}
+		
+		return (Node) answer.getParams().get(0);
 	}
 
 	@Override
