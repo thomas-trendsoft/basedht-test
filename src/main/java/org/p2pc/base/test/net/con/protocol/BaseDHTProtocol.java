@@ -13,7 +13,6 @@ import org.p2pc.base.test.net.LocalNode;
 import org.p2pc.base.test.net.Node;
 import org.p2pc.base.test.net.RemoteNode;
 import org.p2pc.base.test.net.con.Connection;
-import org.p2pc.base.test.net.con.ConnectionPool;
 import org.p2pc.base.test.net.con.Host;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +105,6 @@ public class BaseDHTProtocol {
 		Message hello = MessageFactory.singleton.hello();
 
 		cf = con.sendMsg(hello);
-		log.debug("handshake send...");
 		
 		Message answer;
 		try {
@@ -133,6 +131,12 @@ public class BaseDHTProtocol {
 		
 	}
 
+	/**
+	 * call find successor from remote 
+	 * 
+	 * @param m
+	 * @return
+	 */
 	public Message findSuccessor(Message m) {
 		log.info("find successor: " + m.getRequestId());
 		try {
@@ -151,6 +155,12 @@ public class BaseDHTProtocol {
 		return null;
 	}
 
+	/**
+	 * call get predecessor from remote 
+	 * 
+	 * @param m
+	 * @return
+	 */
 	public Message predecessor(Message m) {
 		Message answer = new Message(m.getRequestId(), Commands.PREDANSWER);
 		
@@ -166,6 +176,11 @@ public class BaseDHTProtocol {
 		return answer;
 	}
 
+	/**
+	 * call notify from remote 
+	 * 
+	 * @param m
+	 */
 	public void notifyNode(Message m) {
 		log.info("got notified");
 		Node n = (Node) m.getParams().get(0);

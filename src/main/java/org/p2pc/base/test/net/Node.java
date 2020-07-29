@@ -101,7 +101,6 @@ public abstract class Node implements Parameter {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		DataOutputStream       out = new DataOutputStream(bout);
 		
-		System.out.println("bytes host: " + this.host);
 		out.write(this.key.hash);
 		out.writeInt(this.host.getPort());
 		

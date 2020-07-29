@@ -113,7 +113,7 @@ public class StabilizeTask implements Runnable {
 		while (!stop) {
 			
 			// wait a short moment
-			try { Thread.sleep(2000); } catch (Exception e) { e.printStackTrace(); }
+			try { Thread.sleep(10000); } catch (Exception e) { e.printStackTrace(); }
 
 			// call stabilize
 			stabilize();

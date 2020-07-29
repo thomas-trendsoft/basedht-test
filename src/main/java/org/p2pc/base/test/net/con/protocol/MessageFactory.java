@@ -149,6 +149,7 @@ public class MessageFactory {
 		case HELLO:
 			System.out.println(data.readableBytes());
 			m.addParam(new Version(readArray(4, data)));
+			System.out.println(data.readableBytes());
 			m.addParam(parseNode(data));
 			break;
 		case WELCOME:
@@ -185,6 +186,7 @@ public class MessageFactory {
 	 */
 	private Node parseNode(ByteBuf data) throws ClientException, IOException {
 		Key key     = new Key(readArray(32, data),"key");
+		System.out.println(data.readableBytes());		
 		int port    = data.readInt();
 		String host = readString(data);
 		

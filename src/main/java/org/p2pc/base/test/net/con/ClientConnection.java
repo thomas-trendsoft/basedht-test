@@ -53,7 +53,7 @@ public class ClientConnection implements Connection {
 		
 		handler.register(msg.getRequestId(), cf);
 		ByteBuf buf = Unpooled.copiedBuffer(msg.serializeMsg());
-		System.out.println("client send: " + buf.readableBytes());
+		//System.out.println("client send: " + buf.readableBytes());
 		channel.channel().writeAndFlush(buf);
 		
 		return cf;
