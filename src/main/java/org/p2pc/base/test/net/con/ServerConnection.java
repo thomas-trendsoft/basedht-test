@@ -54,10 +54,16 @@ public class ServerConnection implements Connection {
 		CompletableFuture<Message> cf = new CompletableFuture<>();
 		
 		handler.register(msg.getRequestId(), cf);
-		ByteBuf data = Unpooled.wrappedBuffer(msg.serializeMsg());
-		context.writeAndFlush(data);
-		
+		ByteBuf data = Unpooled.copiedBuffer(msg.serializeMsg());
+		context.channel().writeAndFlush(data);
+
 		return cf;
+	}
+
+	@Override
+	public boolean isAlive() {
+		System.out.println("isactive: " + context.channel().isActive());
+		return context.channel().isActive();
 	}
 
 }

@@ -40,7 +40,7 @@ public class Routing {
 	public Node closestPrecedingNode(Key key,Node start) throws ClientException {
 		for (int i=fingers.size()-1;i>=0;i--) {
 			Node n = fingers.get(i);
-			if (n != null && n.key.inside(start.key,key)) {
+			if (n != null && n.getHost().getKey().inside(start.getHost().getKey(),key)) {
 				return n;
 			}
 		}
@@ -54,6 +54,7 @@ public class Routing {
 
 	public void setPredecessor(Node predecessor) {
 		this.predecessor = predecessor;
+		System.out.println(this.predecessor + " --> " + this.successor);
 	}
 
 
@@ -63,6 +64,7 @@ public class Routing {
 
 	public void setSuccessor(Node successor) {
 		this.successor = successor;
+		System.out.println(this.predecessor + " --> " + this.successor);
 	}
 	
 	

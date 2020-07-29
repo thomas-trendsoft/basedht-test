@@ -147,6 +147,7 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    	System.out.println("con exception");
         cause.printStackTrace();
         ctx.close();
     }

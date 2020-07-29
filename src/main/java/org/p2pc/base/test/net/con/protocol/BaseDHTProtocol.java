@@ -55,7 +55,7 @@ public class BaseDHTProtocol {
 	 */
 	private BaseDHTProtocol() {
 		byte[] ekey = new byte[32];
-		nullNode = new RemoteNode(new Host("null", -1, new Key(ekey,"")));
+		nullNode = new RemoteNode(new Host("null", -1,new Key(ekey,"")));
 		factory = MessageFactory.singleton;
 		log     = LoggerFactory.getLogger("DHTProtocol");
 	}
@@ -76,7 +76,7 @@ public class BaseDHTProtocol {
 	 * @return
 	 */
 	public Message hello(Message m) {
-		log.info("respond welcome: " + m.getRequestId());
+		Node n = (Node)m.getParams().get(1);
 		return factory.welcome(m.getRequestId());
 	}
 
@@ -126,8 +126,9 @@ public class BaseDHTProtocol {
 		Parameter pv = answer.getParams().get(0);
 		Parameter pk = answer.getParams().get(1);
 		
+		Key hkey = new Key(pk.getByteData(), con.getHost().getHostname());
 		con.getHost().setVersion(new Version(pv.getByteData()));
-		con.getHost().setKey((new Key(pk.getByteData(), con.getHost().getHostname())));
+		con.getHost().setKey(hkey);
 		
 	}
 
@@ -138,7 +139,7 @@ public class BaseDHTProtocol {
 	 * @return
 	 */
 	public Message findSuccessor(Message m) {
-		log.info("find successor: " + m.getRequestId());
+		//log.info("find successor: " + m.getRequestId());
 		try {
 			Key fk = new Key(m.getParams().get(0).getByteData(),"fs");
 			Node n = node.findSuccessor(fk);
@@ -169,7 +170,6 @@ public class BaseDHTProtocol {
 			log.info("null predecessor return");
 			answer.addParam(nullNode);
 		} else {
-			log.info("send my predecessor: " + pnode.getHost());
 			answer.addParam(pnode);			
 		}
 		
@@ -182,7 +182,6 @@ public class BaseDHTProtocol {
 	 * @param m
 	 */
 	public void notifyNode(Message m) {
-		log.info("got notified");
 		Node n = (Node) m.getParams().get(0);
 		
 		try {

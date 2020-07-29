@@ -66,18 +66,18 @@ public class StabilizeTask implements Runnable {
 		Node s = routes.getSuccessor();
 		if (s == null) return;
 		
-		log.info("stabilize");
+		//log.info("stabilize");
 
 		try {
 			Node x = s.getPredecessor();
 			
-			if (x != null && x.key.stabilizeInside(node.key, s.key)) {
+			if (x != null && x.getHost().getKey().stabilizeInside(node.getHost().getKey(), s.getHost().getKey())) {
 				log.info("update successor: " + x.getHost());
 				routes.setSuccessor(x);
 			}
 			
 			s.notify(node);
-			log.info("notify done");
+			//log.info("notify done:" + node.getHost());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -87,17 +87,26 @@ public class StabilizeTask implements Runnable {
 	 * check predecessor of current routing
 	 */
 	private void checkPredecessor() {
-		log.info("check_predecessor");
+		//log.info("check_predecessor");
 		Node        n = routes.getPredecessor();
 		boolean check = false;
 		
+		// check if present 
 		if (n != null)
-			try {
-				check = n.ping();
-			} catch (ClientException e) {
-				e.printStackTrace();
-				check = false;
-			}
+			
+			// myself works ;)
+			if (n == node) {
+				check = true;
+			} else {
+				// ping remote node to check working
+				try {
+					log.info("ping: " + n + ":" + n.getClass().getSimpleName());
+					check = n.ping();
+				} catch (ClientException e) {
+					e.printStackTrace();
+					check = false;
+				}				
+			}		
 		
 		if (!check) {
 			log.info("predecessor lost");
@@ -113,7 +122,7 @@ public class StabilizeTask implements Runnable {
 		while (!stop) {
 			
 			// wait a short moment
-			try { Thread.sleep(10000); } catch (Exception e) { e.printStackTrace(); }
+			try { Thread.sleep(2500); } catch (Exception e) { e.printStackTrace(); }
 
 			// call stabilize
 			stabilize();

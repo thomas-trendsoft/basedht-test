@@ -88,8 +88,13 @@ public class ConnectionPool {
 	public Connection getConnection(Host host) throws ClientException {
 		String lup = host.toString();
 		
-		if (active.containsKey(lup)) {
-			return active.get(lup);
+		Connection con = active.get(lup);
+		if (con != null) {
+			if (con.isAlive()) {
+				//return con;				
+			} else {
+				active.remove(lup);
+			}
 		}
 		
 		try {
@@ -106,12 +111,10 @@ public class ConnectionPool {
 		    
 		    ChannelFuture cf;
 			cf = clientBootstrap.connect().sync();
-		    ClientConnection con = new ClientConnection(host,cf,clientHandler);
+		    con = new ClientConnection(host,cf,clientHandler);
 
 		    // handshake .. updates key and protocol version
 		    clientHandler.protocol().handshake(con);
-		    
-		    System.out.println("handshake done: " + con.getHost() + ":" + con.getHost().getKey());
 		    
 		    // register connection
 		    active.put(lup, con);
@@ -122,6 +125,10 @@ public class ConnectionPool {
 			throw new ClientException("unable to connecto to host: " + host.getHostname());
 		}
 		
+	}
+
+	public void removeConnection(Connection con) {
+		active.remove(con.getHost().toString());
 	}
 	
 }

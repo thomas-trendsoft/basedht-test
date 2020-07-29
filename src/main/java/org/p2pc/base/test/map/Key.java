@@ -111,6 +111,12 @@ public class Key implements Parameter {
 		return 0;
 	}
 	
-	
+	@Override
+	public String toString() {
+	   StringBuilder sb = new StringBuilder(hash.length * 2);
+	   for(byte b: hash)
+	      sb.append(String.format("%02x", b));
+	   return sb.toString();
+	}
 	
 }

@@ -17,11 +17,11 @@ import io.netty.buffer.ByteBuf;
  *
  */
 public class Host implements Parameter {
-	
+
 	/**
 	 * host key value
 	 */
-	private Key key;
+	protected Key key;
 	
 	/**
 	 * protocol version
@@ -43,11 +43,12 @@ public class Host implements Parameter {
 	 * 
 	 * @param hostname
 	 * @param port
+	 * @param key2 
 	 */
-	public Host(String hostname,int port,Key key) {
+	public Host(String hostname,int port, Key k) {
 		this.hostname = hostname;
 		this.port     = port;
-		this.key      = key;
+		this.key      = k;
 	}
 
 	public Key getKey() {
@@ -56,8 +57,8 @@ public class Host implements Parameter {
 	
 	public void setKey(Key k) {
 		this.key = k;
-	}
-
+	}	
+	
 	public String getHostname() {
 		return hostname;
 	}

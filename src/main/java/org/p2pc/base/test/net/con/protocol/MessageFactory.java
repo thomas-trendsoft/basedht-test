@@ -88,7 +88,7 @@ public class MessageFactory {
 		int  c = 0;
 		byte r;
 		while ((r = buf.readByte()) != -1 && c < (len-1)) {
-			b[0] = r;
+			b[c] = r;
 			c++;
 		}
 		
@@ -147,9 +147,7 @@ public class MessageFactory {
 			// no params
 			break;
 		case HELLO:
-			System.out.println(data.readableBytes());
 			m.addParam(new Version(readArray(4, data)));
-			System.out.println(data.readableBytes());
 			m.addParam(parseNode(data));
 			break;
 		case WELCOME:
@@ -186,9 +184,14 @@ public class MessageFactory {
 	 */
 	private Node parseNode(ByteBuf data) throws ClientException, IOException {
 		Key key     = new Key(readArray(32, data),"key");
-		System.out.println(data.readableBytes());		
 		int port    = data.readInt();
 		String host = readString(data);
+
+		// check if its me 
+		if (key.equals(node.getHost().getKey()) && port == node.getHost().getPort()) {
+			System.out.println("got local node as response");
+			return node;
+		} 
 		
 		return new RemoteNode(new Host(host, port, key));
 	}

@@ -49,7 +49,6 @@ public class LocalNode extends Node {
 	public LocalNode(Key k) throws NoSuchAlgorithmException {
 		log         = LoggerFactory.getLogger("LocalNode");
 		localMap    = new ConcurrentHashMap<>();
-		key         = k;
 		
 		routes        = new Routing();
 		fingersTask   = new FingerTask();
@@ -84,9 +83,9 @@ public class LocalNode extends Node {
 	 * @throws ClientException 
 	 */
 	public void join(Node hub) throws NoSuchAlgorithmException, ClientException {
-		log.info("join network: " + hub.host + ":" + this.key);
+		log.info("join network: " + hub.host + ":" + this.host.getKey());
 		routes.setPredecessor(null);
-		routes.setSuccessor(hub.findSuccessor(this.key));
+		routes.setSuccessor(hub.findSuccessor(this.host.getKey()));
 		log.info("joined success: " + routes.getSuccessor().getHost());
 
 		stabilizeTask.start();
@@ -124,7 +123,7 @@ public class LocalNode extends Node {
 	 * @throws ClientException 
 	 */
 	public Node findSuccessor(Key key) throws ClientException {
-		if (key.inside(this.key,routes.getSuccessor().key)) {
+		if (key.inside(this.host.getKey(),routes.getSuccessor().getHost().getKey())) {
 			return routes.getSuccessor();
 		} else {
 			Node p = routes.closestPrecedingNode(key,this);
@@ -137,8 +136,8 @@ public class LocalNode extends Node {
 	public void notify(Node n) throws ClientException {
 		// check update predecessor
 		if (routes.getPredecessor() == null || 
-			n.key.stabilizeInside(routes.getPredecessor().key, this.key)) {
-			log.info(("update predecessor: " + n.getHost()));
+			n.getHost().getKey().stabilizeInside(routes.getPredecessor().getHost().getKey(), this.host.getKey())) {
+			log.info(("update predecessor: " + n.getHost() + ":" + n.getClass().getSimpleName()));
 			routes.setPredecessor(n);
 		}
 	}

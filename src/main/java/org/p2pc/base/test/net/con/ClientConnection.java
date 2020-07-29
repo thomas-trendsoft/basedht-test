@@ -65,5 +65,10 @@ public class ClientConnection implements Connection {
 		return host;
 	}
 
+	@Override
+	public boolean isAlive() {
+		return channel != null && !channel.isCancelled();
+	}
+
 
 }

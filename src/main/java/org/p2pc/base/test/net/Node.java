@@ -23,11 +23,6 @@ public abstract class Node implements Parameter {
 	protected Host host;
 	
 	/**
-	 * key for map position
-	 */
-	protected Key key;
-
-	/**
 	 * host accessor 
 	 * 
 	 * @return
@@ -44,6 +39,7 @@ public abstract class Node implements Parameter {
 	public void setHost(Host host) {
 		this.host = host;
 	}
+
 
 	/**
 	 * lookup a map key
@@ -101,7 +97,7 @@ public abstract class Node implements Parameter {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		DataOutputStream       out = new DataOutputStream(bout);
 		
-		out.write(this.key.hash);
+		out.write(this.getHost().getKey().hash);
 		out.writeInt(this.host.getPort());
 		
 		out.writeBytes(host.getHostname());
@@ -112,6 +108,11 @@ public abstract class Node implements Parameter {
 		byte[] data = bout.toByteArray();
 		
 		return data;
+	}
+	
+	@Override
+	public String toString() {
+		return host.toString();
 	}
 
 }

@@ -26,5 +26,12 @@ public interface Connection {
 	 * @return
 	 */
 	CompletableFuture<Message> sendMsg(Message msg) throws IOException;
+	
+	/**
+	 * check connection 
+	 * 
+	 * @return
+	 */
+	boolean isAlive();
 
 }

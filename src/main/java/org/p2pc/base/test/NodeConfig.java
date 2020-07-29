@@ -71,7 +71,7 @@ public class NodeConfig {
 			} else if ((dp = s.indexOf(":")) > 0){
 				 String    hn = s.substring(0,dp);
 				 Integer   hp = Integer.parseInt(s.substring(dp+1));
-				 hubs.add(new Host(hn, hp,null));
+				 hubs.add(new Host(hn, hp, null));
 			}
 		}
 	}

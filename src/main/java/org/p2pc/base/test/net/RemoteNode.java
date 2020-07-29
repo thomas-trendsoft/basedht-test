@@ -33,7 +33,6 @@ public class RemoteNode extends Node {
 	public RemoteNode(Host host) {
 		this.log  = LoggerFactory.getLogger("RemoteNode");
 		this.host = host;
-		this.key  = host.getKey();
 	}
 	
 	/**
@@ -69,6 +68,7 @@ public class RemoteNode extends Node {
 		try {
 			con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			ConnectionPool.singleton.removeConnection(con);
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
@@ -82,7 +82,7 @@ public class RemoteNode extends Node {
 	 */
 	@Override
 	public Node findSuccessor(Key key) throws ClientException {
-		log.info(host + " findSuccessor");
+		//log.info(host + " findSuccessor");
 
 		Message    msg = new Message(Commands.FINDSUCCESSOR);
 		msg.addParam(key);
@@ -93,6 +93,7 @@ public class RemoteNode extends Node {
 		try {
 			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			ConnectionPool.singleton.removeConnection(con);			
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
@@ -116,6 +117,7 @@ public class RemoteNode extends Node {
 			msg.addParam(n);
 			con.sendMsg(msg);
 		} catch (Exception e) {
+			ConnectionPool.singleton.removeConnection(con);			
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
@@ -134,6 +136,7 @@ public class RemoteNode extends Node {
 		try {
 			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			ConnectionPool.singleton.removeConnection(con);			
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
@@ -143,7 +146,6 @@ public class RemoteNode extends Node {
 		}
 		
 		Node n = (Node)answer.getParams().get(0);
-		log.info("got predecessor: " + n.getHost());
 		
 		// check null node msg
 		if (n.getHost().getPort() == -1)
@@ -160,6 +162,7 @@ public class RemoteNode extends Node {
 		try {
 			con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
+			ConnectionPool.singleton.removeConnection(con);			
 			e.printStackTrace();
 			return false;
 		}
