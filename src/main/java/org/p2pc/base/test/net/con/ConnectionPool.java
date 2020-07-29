@@ -2,7 +2,6 @@ package org.p2pc.base.test.net.con;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.p2pc.base.test.map.Key;
 import org.p2pc.base.test.net.ClientException;
 
 import io.netty.bootstrap.Bootstrap;

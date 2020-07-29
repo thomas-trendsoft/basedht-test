@@ -14,9 +14,9 @@ Basic Protocol handling is working.
 
 Can bootstrap one node 
 
-Can join a second node 
+Can join a second node and some more now
 
-Have to stabilize and organize fingers to get a correct routing for next nodes
+The basic ring seems to get build but the connections not stable if reused. fingers still need to be done and then the get / put operations.
 
 # Basic Protocol Definition
 
