@@ -33,6 +33,11 @@ public class ClientConnection implements Connection {
 	private Host host;
 	
 	/**
+	 * open flag
+	 */
+	private boolean open;
+	
+	/**
 	 * default constructor 
 	 * 
 	 * @param channel
@@ -41,6 +46,11 @@ public class ClientConnection implements Connection {
 		this.host    = host;
 		this.channel = channel;
 		this.handler = handler;
+		
+		channel.addListener(con -> {
+			System.out.println("close client con: " + con);
+			//open = false;
+		});
 	}
 	
 	/**
@@ -67,7 +77,17 @@ public class ClientConnection implements Connection {
 
 	@Override
 	public boolean isAlive() {
+		System.out.println("canceld client: " + channel.isCancelled());
 		return channel != null && !channel.isCancelled();
+	}
+
+	@Override
+	public void destroy() {
+		try {
+			channel.channel().close().sync();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 

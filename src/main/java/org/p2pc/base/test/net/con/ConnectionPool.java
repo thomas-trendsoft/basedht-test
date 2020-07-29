@@ -91,13 +91,16 @@ public class ConnectionPool {
 		Connection con = active.get(lup);
 		if (con != null) {
 			if (con.isAlive()) {
-				//return con;				
+				System.out.println("reuse: " + lup);
+				return con;				
 			} else {
+				System.out.println("remove con: " + lup);
 				active.remove(lup);
 			}
 		}
 		
 		try {
+			System.out.println("CREATE NEW: " + host);
 			// try to create a new connection
 			Bootstrap clientBootstrap = new Bootstrap();
 			clientBootstrap.channel(NioSocketChannel.class);
@@ -128,7 +131,9 @@ public class ConnectionPool {
 	}
 
 	public void removeConnection(Connection con) {
+		System.out.println("REMOVE POOL: " + con.getHost());
 		active.remove(con.getHost().toString());
+		con.destroy();
 	}
 	
 }

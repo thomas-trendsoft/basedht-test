@@ -7,6 +7,7 @@ import org.p2pc.base.test.net.con.protocol.Message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -25,7 +26,7 @@ public class ServerConnection implements Connection {
 	/**
 	 * server connection context
 	 */
-	private ChannelHandlerContext context;
+	private Channel context;
 	
 	/**
 	 * protocol handler
@@ -33,15 +34,25 @@ public class ServerConnection implements Connection {
 	private BaseDHTHandler handler;
 	
 	/**
+	 * open falg
+	 */
+	private boolean open;
+	
+	/**
 	 * default constructor 
 	 * 
 	 * @param h
 	 * @param ctx
 	 */
-	public ServerConnection(Host h,ChannelHandlerContext ctx,BaseDHTHandler handle) {
+	public ServerConnection(Host h,Channel ctx,BaseDHTHandler handle) {
 		host    = h;
 		context = ctx;
 		handler = handle;
+		
+		context.closeFuture().addListener(con -> {
+			System.out.println("close a server connection");
+			open = false;
+		});
 	}
 	
 	@Override
@@ -55,15 +66,24 @@ public class ServerConnection implements Connection {
 		
 		handler.register(msg.getRequestId(), cf);
 		ByteBuf data = Unpooled.copiedBuffer(msg.serializeMsg());
-		context.channel().writeAndFlush(data);
+		context.writeAndFlush(data);
 
 		return cf;
 	}
 
 	@Override
 	public boolean isAlive() {
-		System.out.println("isactive: " + context.channel().isActive());
-		return context.channel().isActive();
+		System.out.println("isactive: " + context.isActive());
+		return open && context.isActive();
+	}
+
+	@Override
+	public void destroy() {
+		try {
+			context.close().sync();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }

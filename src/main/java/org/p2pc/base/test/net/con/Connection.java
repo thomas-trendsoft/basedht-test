@@ -33,5 +33,10 @@ public interface Connection {
 	 * @return
 	 */
 	boolean isAlive();
+	
+	/**
+	 * force to close the connection
+	 */
+	void destroy();
 
 }

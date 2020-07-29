@@ -113,7 +113,7 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
             	break;
             case HELLO:
             	Node ocn = (Node) m.getParams().get(1);
-            	ConnectionPool.singleton.registerConnection(ocn.getHost().toString(), new ServerConnection(ocn.getHost(), ctx, this));
+            	ConnectionPool.singleton.registerConnection(ocn.getHost().toString(), new ServerConnection(ocn.getHost(), ctx.channel(), this));
             	sendMsg(ctx, protocol.hello(m));
             	return;
             case FINDSUCCESSOR: 
