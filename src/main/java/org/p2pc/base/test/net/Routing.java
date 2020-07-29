@@ -28,6 +28,8 @@ public class Routing {
 		fingers     = new ArrayList<>();
 		predecessor = null;
 		successor   = null;
+		
+		for (int i=0;i<Key.size;i++) fingers.add(null);
 	}
 
 	/**
@@ -38,7 +40,7 @@ public class Routing {
 	 * @throws ClientException 
 	 */
 	public Node closestPrecedingNode(Key key,Node start) throws ClientException {
-		for (int i=fingers.size()-1;i>=0;i--) {
+		for (int i=0;i<=fingers.size();i++) {
 			Node n = fingers.get(i);
 			if (n != null && n.getHost().getKey().inside(start.getHost().getKey(),key)) {
 				return n;

@@ -32,11 +32,6 @@ public class LocalNode extends Node {
 	private Logger log;
 	
 	/**
-	 * fingers routing table updater
-	 */
-	private FingerTask fingersTask;
-	
-	/**
 	 * stabilization task
 	 */
 	private StabilizeTask stabilizeTask;
@@ -51,7 +46,6 @@ public class LocalNode extends Node {
 		localMap    = new ConcurrentHashMap<>();
 		
 		routes        = new Routing();
-		fingersTask   = new FingerTask();
 		stabilizeTask = new StabilizeTask(this,routes);
 	}
 	

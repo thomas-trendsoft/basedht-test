@@ -1,5 +1,6 @@
 package org.p2pc.base.test.net;
 
+import org.p2pc.base.test.map.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,11 @@ public class StabilizeTask implements Runnable {
 	private Logger log;
 	
 	/**
+	 * current finger check pos
+	 */
+	private int fingerpos;
+	
+	/**
 	 * default constructor
 	 *  
 	 * @param routes
@@ -40,6 +46,7 @@ public class StabilizeTask implements Runnable {
 		this.routes = routes;
 		this.node   = n;
 		this.log    = LoggerFactory.getLogger("stabilize");
+		this.fingerpos = 0;
 	}
 	
 	/**
@@ -81,6 +88,19 @@ public class StabilizeTask implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
+	}
+	
+	private void fixFingers() {
+		if (fingerpos++ > Key.size) {
+			fingerpos = 1;
+		}
+		Key  fkey   = node.getHost().getKey().addPower(fingerpos);
+		try {
+			Node update = node.findSuccessor(fkey);
+		} catch (ClientException e) {
+			log.info("failed to update finger table");
+			e.printStackTrace();
+		}
 	}
 
 	/**

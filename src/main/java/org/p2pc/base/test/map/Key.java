@@ -87,6 +87,45 @@ public class Key implements Parameter {
 	}
 	
 	/**
+	 * create finger key for routing table
+	 * 
+	 * (copy from ref implementation
+	 * 
+	 * @param power
+	 * @return
+	 */
+	public final Key addPower(int power) {
+
+		if (power < 0 || power >= (hash.length * 8)) {
+			throw new IllegalArgumentException(
+					"The power of two is out of range! It must be in the interval "
+							+ "[0, length-1]");
+		}
+
+		// copy ID
+		byte[] copy = new byte[hash.length];
+		System.arraycopy(hash, 0, copy, 0, hash.length);
+
+		// determine index of byte and the value to be added
+		int indexOfByte = hash.length - 1 - (power / 8);
+		byte[] toAdd = { 1, 2, 4, 8, 16, 32, 64, -128 };
+		byte valueToAdd = toAdd[power % 8];
+		byte oldValue;
+
+		do {
+			// add value
+			oldValue = copy[indexOfByte];
+			copy[indexOfByte] += valueToAdd;
+
+			// reset value to 1 for possible overflow situation
+			valueToAdd = 1;
+		}
+		while (oldValue < 0 && copy[indexOfByte] >= 0 && indexOfByte-- > 0);
+
+		return new Key(copy,this.name);
+	}	
+	
+	/**
 	 * compare key positions
 	 * 
 	 * @param other
