@@ -7,7 +7,7 @@ import org.p2pc.base.test.net.con.protocol.Message;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.Channel;
 
 /**
  * Client connection implementation
@@ -20,7 +20,7 @@ public class ClientConnection implements Connection {
 	/**
 	 * netty connection channel
 	 */
-	private ChannelFuture channel;
+	private Channel channel;
 	
 	/**
 	 * protocol handler
@@ -42,14 +42,15 @@ public class ClientConnection implements Connection {
 	 * 
 	 * @param channel
 	 */
-	public ClientConnection(Host host,ChannelFuture channel,BaseDHTHandler handler) {
+	public ClientConnection(Host host,Channel channel,BaseDHTHandler handler) {
 		this.host    = host;
 		this.channel = channel;
 		this.handler = handler;
+		this.open    = true;
 		
-		channel.addListener(con -> {
+		channel.closeFuture().addListener(con -> {
 			System.out.println("close client con: " + con);
-			//open = false;
+			open = false;
 		});
 	}
 	
@@ -64,7 +65,13 @@ public class ClientConnection implements Connection {
 		handler.register(msg.getRequestId(), cf);
 		ByteBuf buf = Unpooled.copiedBuffer(msg.serializeMsg());
 		//System.out.println("client send: " + buf.readableBytes());
-		channel.channel().writeAndFlush(buf);
+		try {
+			channel.writeAndFlush(buf).sync();
+		} catch (InterruptedException e) {
+			System.out.println("Error on send");
+			e.printStackTrace();
+			throw new IOException(e.getMessage());
+		}
 		
 		return cf;
 	}
@@ -77,14 +84,13 @@ public class ClientConnection implements Connection {
 
 	@Override
 	public boolean isAlive() {
-		System.out.println("canceld client: " + channel.isCancelled());
-		return channel != null && !channel.isCancelled();
+		return open && channel != null && channel.isOpen() && channel.isWritable();
 	}
 
 	@Override
 	public void destroy() {
 		try {
-			channel.channel().close().sync();
+			channel.close().sync();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

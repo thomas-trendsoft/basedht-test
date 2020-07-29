@@ -7,6 +7,7 @@ import org.p2pc.base.test.net.ClientException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -90,16 +91,13 @@ public class ConnectionPool {
 		Connection con = active.get(lup);
 		if (con != null) {
 			if (con.isAlive()) {
-				System.out.println("reuse: " + lup);
 				return con;				
 			} else {
-				System.out.println("remove con: " + lup);
-				active.remove(lup);
+				this.removeConnection(con);
 			}
 		}
 		
 		try {
-			System.out.println("CREATE NEW: " + host);
 			// try to create a new connection
 			Bootstrap clientBootstrap = new Bootstrap();
 			clientBootstrap.channel(NioSocketChannel.class);
@@ -110,10 +108,12 @@ public class ConnectionPool {
 		            socketChannel.pipeline().addLast(clientHandler);
 		        }
 		    });
+		    clientBootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+		    clientBootstrap.option(ChannelOption.AUTO_CLOSE, true);
 		    
 		    ChannelFuture cf;
 			cf = clientBootstrap.connect().sync();
-		    con = new ClientConnection(host,cf,clientHandler);
+		    con = new ClientConnection(host,cf.channel(),clientHandler);
 
 		    // handshake .. updates key and protocol version
 		    clientHandler.protocol().handshake(con);
@@ -130,7 +130,6 @@ public class ConnectionPool {
 	}
 
 	public void removeConnection(Connection con) {
-		System.out.println("REMOVE POOL: " + con.getHost());
 		active.remove(con.getHost().toString());
 		con.destroy();
 	}

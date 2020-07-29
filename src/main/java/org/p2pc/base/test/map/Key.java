@@ -38,7 +38,6 @@ public class Key implements Parameter {
 		
 		// check if border gets passed
 		if (from.compareTo(to) < 0) {
-			System.out.println("sins normal: " + (from.compareTo(this) > 0) + "/" + (to.compareTo(this) < 0));
 			return from.compareTo(this) > 0 && to.compareTo(this) < 0;
 		}
 		

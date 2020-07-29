@@ -100,7 +100,6 @@ public class StabilizeTask implements Runnable {
 			} else {
 				// ping remote node to check working
 				try {
-					log.info("ping: " + n + ":" + n.getClass().getSimpleName());
 					check = n.ping();
 				} catch (ClientException e) {
 					e.printStackTrace();

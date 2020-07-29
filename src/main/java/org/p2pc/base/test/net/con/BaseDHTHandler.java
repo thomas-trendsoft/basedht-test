@@ -15,6 +15,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelHandler.Sharable;
 
 /**
@@ -113,7 +114,7 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
             	break;
             case HELLO:
             	Node ocn = (Node) m.getParams().get(1);
-            	ConnectionPool.singleton.registerConnection(ocn.getHost().toString(), new ServerConnection(ocn.getHost(), ctx.channel(), this));
+            	ConnectionPool.singleton.registerConnection(ocn.getHost().toString(), new ClientConnection(ocn.getHost(), ctx.channel(), this));
             	sendMsg(ctx, protocol.hello(m));
             	return;
             case FINDSUCCESSOR: 
