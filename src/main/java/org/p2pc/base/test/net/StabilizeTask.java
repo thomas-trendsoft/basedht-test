@@ -97,6 +97,10 @@ public class StabilizeTask implements Runnable {
 		Key  fkey   = node.getHost().getKey().addPower(fingerpos);
 		try {
 			Node update = node.findSuccessor(fkey);
+			// if new node and not myself
+			if (update != null && update != node) {
+				routes.setFinger(fingerpos, update);
+			}
 		} catch (ClientException e) {
 			log.info("failed to update finger table");
 			e.printStackTrace();
@@ -143,11 +147,19 @@ public class StabilizeTask implements Runnable {
 			// wait a short moment
 			try { Thread.sleep(2500); } catch (Exception e) { e.printStackTrace(); }
 
-			// call stabilize
-			stabilize();
-			
-			// check predecessor 
-			checkPredecessor();
+			try {
+				// call stabilize
+				stabilize();
+				
+				// check predecessor 
+				checkPredecessor();
+				
+				// update finger entry
+				fixFingers();				
+			} catch (Exception e) {
+				log.error("failed to stabilize: " + e.getMessage());
+				e.printStackTrace();
+			}
 			
 		}
 	}

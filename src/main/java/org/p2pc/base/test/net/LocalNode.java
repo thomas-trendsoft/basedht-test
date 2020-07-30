@@ -77,9 +77,21 @@ public class LocalNode extends Node {
 	 * @throws ClientException 
 	 */
 	public void join(Node hub) throws NoSuchAlgorithmException, ClientException {
+		
 		log.info("join network: " + hub.host + ":" + this.host.getKey());
+		
+		// set predecessor empty
 		routes.setPredecessor(null);
-		routes.setSuccessor(hub.findSuccessor(this.host.getKey()));
+		
+		// check if we can init with a successor from p2p net
+		Node succ = hub.findSuccessor(this.host.getKey());
+		if (succ != null && succ.host.getPort() != -1)
+			routes.setSuccessor(succ);
+		else {
+			log.error("failed to get successor");
+			return;
+		}
+		
 		log.info("joined success: " + routes.getSuccessor().getHost());
 
 		stabilizeTask.start();
@@ -121,7 +133,12 @@ public class LocalNode extends Node {
 			return routes.getSuccessor();
 		} else {
 			Node p = routes.closestPrecedingNode(key,this);
-			return p.findSuccessor(key);
+			if (p != this)
+				return p.findSuccessor(key);
+			else {
+				log.debug("how can this be if inside this should be conflict");
+				return routes.getSuccessor();
+			}
 		}
 	}
 

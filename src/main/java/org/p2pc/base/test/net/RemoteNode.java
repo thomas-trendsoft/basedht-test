@@ -82,7 +82,7 @@ public class RemoteNode extends Node {
 	 */
 	@Override
 	public Node findSuccessor(Key key) throws ClientException {
-		//log.info(host + " findSuccessor");
+		log.info(host + " findSuccessor");
 
 		Message    msg = new Message(Commands.FINDSUCCESSOR);
 		msg.addParam(key);

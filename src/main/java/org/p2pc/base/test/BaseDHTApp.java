@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.p2pc.base.test.net.LocalNode;
 import org.p2pc.base.test.net.RemoteNode;
+import org.p2pc.base.test.net.con.ConnectionPool;
 import org.p2pc.base.test.net.con.Host;
 import org.p2pc.base.test.net.con.NodeServer;
 import org.p2pc.base.test.net.con.protocol.BaseDHTProtocol;
@@ -109,6 +110,11 @@ public class BaseDHTApp {
 	 */
 	public static void main(String[] args) {
 		NodeConfig cfg = new NodeConfig(args);
+		
+		// add shutdown hook
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			ConnectionPool.singleton.closeAll();
+		}));
 		
 		try {
 			BaseDHTApp app = new BaseDHTApp(cfg);			

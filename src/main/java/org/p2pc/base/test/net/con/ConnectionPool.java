@@ -3,6 +3,8 @@ package org.p2pc.base.test.net.con;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.p2pc.base.test.net.ClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -46,11 +48,17 @@ public class ConnectionPool {
 	private static int reqid;
 	
 	/**
+	 * Logging interface
+	 */
+	private Logger log;
+	
+	/**
 	 * default constructor 
 	 */
 	private ConnectionPool() {
 		reqid  = (int) (Math.random() * Integer.MAX_VALUE);
 		active = new ConcurrentHashMap<>();
+		log    = LoggerFactory.getLogger("Connections");
 		
 		// prepare client connections
 		clientThreads   = new NioEventLoopGroup();
@@ -130,8 +138,17 @@ public class ConnectionPool {
 	}
 
 	public void removeConnection(Connection con) {
+		log.info("remove connection: " + con.getHost());
 		active.remove(con.getHost().toString());
 		con.destroy();
+	}
+
+	public void closeAll() {
+		log.info("shutdown connections...");
+		for (Connection con : active.values()) {
+			con.destroy();
+		}
+		
 	}
 	
 }

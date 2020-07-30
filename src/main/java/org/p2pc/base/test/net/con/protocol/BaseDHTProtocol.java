@@ -76,7 +76,6 @@ public class BaseDHTProtocol {
 	 * @return
 	 */
 	public Message hello(Message m) {
-		Node n = (Node)m.getParams().get(1);
 		return factory.welcome(m.getRequestId());
 	}
 
@@ -144,14 +143,18 @@ public class BaseDHTProtocol {
 			Key fk = new Key(m.getParams().get(0).getByteData(),"fs");
 			Node n = node.findSuccessor(fk);
 			
-			if (node != null) {
-				Message ret = new Message(m.getRequestId(),Commands.SUCCESSORFIND);
+			Message ret = new Message(m.getRequestId(),Commands.SUCCESSORFIND);
+			if (n != null) {
 				ret.addParam(n);
-				return ret;
+			} else {
+				ret.addParam(nullNode);
 			}
+			return ret;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println("FAIL FIND");
 		
 		return null;
 	}

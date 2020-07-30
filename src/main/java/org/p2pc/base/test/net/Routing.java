@@ -3,6 +3,8 @@ package org.p2pc.base.test.net;
 import java.util.ArrayList;
 
 import org.p2pc.base.test.map.Key;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Routing {
 	
@@ -22,12 +24,19 @@ public class Routing {
 	private Node successor;
 	
 	/**
+	 * logging interface
+	 */
+	private Logger log;
+	
+	/**
 	 * default constructor 
 	 */
 	public Routing() {
 		fingers     = new ArrayList<>();
 		predecessor = null;
 		successor   = null;
+		
+		log         = LoggerFactory.getLogger("Routing");
 		
 		for (int i=0;i<Key.size;i++) fingers.add(null);
 	}
@@ -40,7 +49,7 @@ public class Routing {
 	 * @throws ClientException 
 	 */
 	public Node closestPrecedingNode(Key key,Node start) throws ClientException {
-		for (int i=0;i<=fingers.size();i++) {
+		for (int i=0;i<fingers.size();i++) {
 			Node n = fingers.get(i);
 			if (n != null && n.getHost().getKey().inside(start.getHost().getKey(),key)) {
 				return n;
@@ -48,11 +57,16 @@ public class Routing {
 		}
 		return start;
 	}
+	
+	public synchronized void setFinger(int i,Node n) {
+		fingers.remove(n);
+		log.info("update finger table: " + i + " -> " + n.getHost());
+		fingers.set(i, n);
+	}
 
 	public Node getPredecessor() {
 		return predecessor;
 	}
-
 
 	public void setPredecessor(Node predecessor) {
 		this.predecessor = predecessor;
