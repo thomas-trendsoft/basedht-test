@@ -11,12 +11,12 @@ https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf
 ## Status
 
 Basic Protocol handling is working.
+Ring Build up is basic working
+Finger Tables first are builded up
 
-Can bootstrap one node 
+try now to do the basic get/set operations
 
-Can join a second node and some more now
-
-The basic ring seems to get build but the connections not stable if reused. fingers still need to be done and then the get / put operations.
+shutdown and unregister / leave of a node is missing to
 
 # Basic Protocol Definition
 
