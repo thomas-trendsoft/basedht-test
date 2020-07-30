@@ -59,7 +59,11 @@ public class Routing {
 	}
 	
 	public synchronized void setFinger(int i,Node n) {
-		fingers.remove(n);
+		int idx = fingers.indexOf(n);
+		
+		if (idx != -1)
+			fingers.set(idx, null);
+		
 		log.info("update finger table: " + i + " -> " + n.getHost());
 		fingers.set(i, n);
 	}

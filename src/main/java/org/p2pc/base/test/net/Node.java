@@ -55,7 +55,7 @@ public abstract class Node implements Parameter {
 	 * @param key
 	 * @param data
 	 */
-	public abstract void set(Key key,Value data) throws ClientException;
+	public abstract boolean set(Key key,Value data) throws ClientException;
 	
 	/**
 	 * find a success for the given node

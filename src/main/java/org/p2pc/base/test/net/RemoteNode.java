@@ -61,17 +61,19 @@ public class RemoteNode extends Node {
 	 * @throws ClientException 
 	 */
 	@Override
-	public void set(Key key, Value data) throws ClientException {
+	public boolean set(Key key, Value data) throws ClientException {
 		Message    msg = new Message(Commands.SET);
 		Connection con = ConnectionPool.singleton.getConnection(host);
-		
+		Message    answer;
 		try {
-			con.sendMsg(msg).get(2, TimeUnit.SECONDS);
+			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			ConnectionPool.singleton.removeConnection(con);
 			e.printStackTrace();
 			throw new ClientException("failed to send set key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
+		
+		return answer.getMsg() == Commands.DONE;
 
 	}
 

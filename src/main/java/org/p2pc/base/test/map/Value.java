@@ -8,6 +8,10 @@ package org.p2pc.base.test.map;
  */
 public class Value {
 	
+	public Value(byte[] bytes) {
+		this.data = bytes;
+	}
+
 	/**
 	 * memory data
 	 */

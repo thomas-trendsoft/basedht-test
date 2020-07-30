@@ -19,7 +19,7 @@ public class LocalNode extends Node {
 	/**
 	 * local memory map
 	 */
-	private ConcurrentHashMap<Key, Value> localMap;
+	private ConcurrentHashMap<String, Value> localMap;
 	
 	/**
 	 * routing information
@@ -110,7 +110,8 @@ public class LocalNode extends Node {
 	 * @return
 	 */
 	public Value get(Key key) {
-		return null;
+		System.out.println("get local key : " + key);
+		return localMap.get(key.toString());
 	}
 	
 	/**
@@ -119,8 +120,10 @@ public class LocalNode extends Node {
 	 * @param key
 	 * @param data
 	 */
-	public void set(Key key,Value data) {
-		
+	public boolean set(Key key,Value data) {
+		System.out.println("set local key : " + key);
+		localMap.put(key.toString(), data);
+		return true;
 	}
 	
 	/**
