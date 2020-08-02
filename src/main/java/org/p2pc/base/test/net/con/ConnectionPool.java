@@ -125,7 +125,7 @@ public class ConnectionPool {
 
 		    // handshake .. updates key and protocol version
 		    clientHandler.protocol().handshake(con);
-		    
+
 		    // register connection
 		    active.put(lup, con);
 		    

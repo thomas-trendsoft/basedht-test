@@ -8,6 +8,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
+import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.ClientException;
 import org.p2pc.base.test.net.LocalNode;
 import org.p2pc.base.test.net.Node;
@@ -193,6 +194,44 @@ public class BaseDHTProtocol {
 			e.printStackTrace();
 			log.error("failed to notify local: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * execute get command
+	 * 
+	 * @param m
+	 * @return
+	 */
+	public Message get(Message m) {
+		Message answer = new Message(m.getRequestId(),Commands.VALUE);
+		
+		Value v = node.get((Key)m.getParams().get(0));
+		if (v == null) {
+			v = new Value(new byte[0]);
+		} 
+		
+		answer.addParam(new BaseParameter(MessageFactory.singleton.intToBytes(v.data.length)));
+		answer.addParam(v);
+		
+		return answer;
 	}	
+	
+	/**
+	 * call set method
+	 * 
+	 * @param m
+	 * @return
+	 */
+	public Message set(Message m) {
+		Key   k = (Key)   m.getParams().get(0);
+		Value v = (Value) m.getParams().get(1);
+		
+		System.out.println("set received");
+		node.set(k,v);
+		
+		Message answer = new Message(m.getRequestId(),Commands.DONE);
+		
+		return answer;
+	}
 
 }

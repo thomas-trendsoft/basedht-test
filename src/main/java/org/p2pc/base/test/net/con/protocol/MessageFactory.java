@@ -2,10 +2,12 @@ package org.p2pc.base.test.net.con.protocol;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 import org.p2pc.base.test.Version;
 import org.p2pc.base.test.map.Key;
+import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.ClientException;
 import org.p2pc.base.test.net.Node;
 import org.p2pc.base.test.net.RemoteNode;
@@ -65,6 +67,12 @@ public class MessageFactory {
 		version = new BaseParameter(Message.VERSION);
 	}
 	
+	public byte[] intToBytes( final int i ) {
+	    ByteBuffer bb = ByteBuffer.allocate(4); 
+	    bb.putInt(i); 
+	    return bb.array();
+	}
+	
 	/**
 	 * set local node ref
 	 * 
@@ -86,14 +94,11 @@ public class MessageFactory {
 		byte[] b = new byte[len];
 		
 		int  c = 0;
-		byte r;
-		while ((r = buf.readByte()) != -1 && c < (len-1)) {
-			b[c] = r;
-			c++;
+		while (c < len) {
+			b[c++] = buf.readByte();
 		}
 		
-		c++;
-		if (len != c) throw new ClientException("unexpoected eof on msg read");
+		if (len != c) throw new ClientException("unexpoected eof on msg read (" + len + "/" + c + ")");
 		
 		return b;
 	}
@@ -117,7 +122,9 @@ public class MessageFactory {
 		} while (r != 0 && c < 20);
 		buf.close();
 		
-		return new String(buf.toByteArray(),CharsetUtil.UTF_8);		
+		byte[] result = buf.toByteArray();
+
+		return new String(result,CharsetUtil.UTF_8);		
 	}
 	
 	/**
@@ -144,7 +151,19 @@ public class MessageFactory {
 		case PREDECESSOR:
 		case PING:
 		case PONG:
+		case DONE:
 			// no params
+			break;
+		case GET:
+			m.addParam(new Key(readArray(32,data),"key"));
+			break;
+		case SET:
+			System.out.println("received SET");
+			m.addParam(new Key(readArray(32,data),"key"));
+			m.addParam(parseValue(data));
+			break;
+		case VALUE:
+			m.addParam(parseValue(data));
 			break;
 		case HELLO:
 			m.addParam(new Version(readArray(4, data)));
@@ -175,6 +194,22 @@ public class MessageFactory {
 	}
 
 	/**
+	 * parse a byte value 
+	 * 
+	 * @param data
+	 * @return
+	 * @throws ClientException
+	 */
+	public Value parseValue(ByteBuf data) throws ClientException {
+		int vlen = data.readInt();
+		if (vlen > 0) {
+			return new Value(readArray(vlen, data));
+		} else {
+			return new Value(new byte[0]);
+		}
+	}
+
+	/**
 	 * parse a node parameter
 	 * 
 	 * @param data
@@ -182,14 +217,14 @@ public class MessageFactory {
 	 * @throws ClientException
 	 * @throws IOException
 	 */
-	private Node parseNode(ByteBuf data) throws ClientException, IOException {
+	public Node parseNode(ByteBuf data) throws ClientException, IOException {
 		Key key     = new Key(readArray(32, data),"key");
 		int port    = data.readInt();
 		String host = readString(data);
 
 		// check if its me 
 		if (key.equals(node.getHost().getKey()) && port == node.getHost().getPort()) {
-			System.out.println("got local node as response");
+			// System.out.println("got local node as response");
 			return node;
 		} 
 		

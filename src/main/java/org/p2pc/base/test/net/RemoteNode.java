@@ -7,8 +7,10 @@ import org.p2pc.base.test.map.Value;
 import org.p2pc.base.test.net.con.Connection;
 import org.p2pc.base.test.net.con.ConnectionPool;
 import org.p2pc.base.test.net.con.Host;
+import org.p2pc.base.test.net.con.protocol.BaseParameter;
 import org.p2pc.base.test.net.con.protocol.Commands;
 import org.p2pc.base.test.net.con.protocol.Message;
+import org.p2pc.base.test.net.con.protocol.MessageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,15 +46,20 @@ public class RemoteNode extends Node {
 	public Value get(Key key) throws ClientException {
 		Message    msg = new Message(Commands.GET);
 		Connection con = ConnectionPool.singleton.getConnection(host);
+		Message    answer;
 		
 		try {
-			con.sendMsg(msg).get(2, TimeUnit.SECONDS);
+			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ClientException("failed to send get key msg: " + host.getHostname() + ":" + e.getMessage());
 		}
 		
-		return null;
+		if (answer.getParams().size() != 1) {
+			throw new ClientException("wrong param values on get");
+		}
+		
+		return (Value)answer.getParams().get(0);
 	}
 
 	/**
@@ -65,7 +72,13 @@ public class RemoteNode extends Node {
 		Message    msg = new Message(Commands.SET);
 		Connection con = ConnectionPool.singleton.getConnection(host);
 		Message    answer;
+		
+		System.out.println("send set command");
 		try {
+			msg.addParam(key);
+			msg.addParam(new BaseParameter(MessageFactory.singleton.intToBytes(data.data.length)));
+			msg.addParam(data);
+			System.out.println("set with len: " + data.data.length);
 			answer = con.sendMsg(msg).get(2, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			ConnectionPool.singleton.removeConnection(con);

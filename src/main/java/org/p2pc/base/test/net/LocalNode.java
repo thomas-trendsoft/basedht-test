@@ -110,7 +110,7 @@ public class LocalNode extends Node {
 	 * @return
 	 */
 	public Value get(Key key) {
-		System.out.println("get local key : " + key);
+		System.out.println("get local map entry : " + key);
 		return localMap.get(key.toString());
 	}
 	
@@ -121,7 +121,7 @@ public class LocalNode extends Node {
 	 * @param data
 	 */
 	public boolean set(Key key,Value data) {
-		System.out.println("set local key : " + key);
+		System.out.println("set local map entry : " + key);
 		localMap.put(key.toString(), data);
 		return true;
 	}

@@ -64,7 +64,7 @@ public class Routing {
 		if (idx != -1)
 			fingers.set(idx, null);
 		
-		log.info("update finger table: " + i + " -> " + n.getHost());
+		//log.info("update finger table: " + i + " -> " + n.getHost());
 		fingers.set(i, n);
 	}
 

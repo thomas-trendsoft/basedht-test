@@ -64,7 +64,6 @@ public class ClientConnection implements Connection {
 		
 		handler.register(msg.getRequestId(), cf);
 		ByteBuf buf = Unpooled.copiedBuffer(msg.serializeMsg());
-		//System.out.println("client send: " + buf.readableBytes());
 		try {
 			channel.writeAndFlush(buf).sync();
 		} catch (InterruptedException e) {

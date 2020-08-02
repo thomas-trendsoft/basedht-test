@@ -15,7 +15,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelHandler.Sharable;
 
 /**
@@ -90,7 +89,6 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 		ByteBuf buf;
 		try {
 			buf = Unpooled.wrappedBuffer(m.serializeMsg());
-			//System.out.println("send: " + m.getMsg() + ":" + buf.readableBytes());
 			ctx.channel().writeAndFlush(buf);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -104,13 +102,18 @@ public class BaseDHTHandler extends ChannelInboundHandlerAdapter {
 
         // TODO add connection as server connection to pool (how to host)
         
-        //System.out.println("recv: " + inBuffer.readableBytes());
         try {
             Message m = parser.parseMessage(inBuffer);
-            
+
             switch (m.getMsg()) {
             case PING:
             	sendMsg(ctx, protocol.ping(m));
+            	break;
+            case GET:
+            	sendMsg(ctx, protocol.get(m));
+            	break;
+            case SET:
+            	sendMsg(ctx, protocol.set(m));
             	break;
             case HELLO:
             	Node ocn = (Node) m.getParams().get(1);
